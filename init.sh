@@ -1201,13 +1201,13 @@ use_parentheses = true
 ensure_newline_before_comments = true
 EOF
 
-# Install pre-commit hooks
+# Install pre-commit hooks using uv to ensure it's linked to the project's venv
 if [ -d ".git" ] || [ -f ".git" ]; then
-    pre-commit install
+    uv run pre-commit install
 else
     # If git isn't initialized yet, we'll initialize it now to make pre-commit work
     git init
-    pre-commit install
+    uv run pre-commit install
 fi
 
 echo "Code formatting setup complete!"
