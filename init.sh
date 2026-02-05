@@ -60,22 +60,66 @@ done
 # --------------------- 4. Creating .env file ---------------------
 echo "Creating .env file..."
 cat > .env << EOF
+# -------------------------------
+# Django settings
+# -------------------------------
 DEBUG=True
 SECRET_KEY=django-insecure-$(openssl rand -base64 32)
 DATABASE_URL=postgresql://user:password@localhost:5432/dbname
 
-# AWS
+ALLOWED_HOSTS=localhost,127.0.0.1,api.example.com,www.api.example.com
+CORS_ALLOWED_ORIGINS=http://localhost:3001,http://api.example.com,http://www.api.example.com
+ 
+
+
+
+# -------------------------------
+# AWS S3 Settings
+# -------------------------------
 AWS_ACCESS_KEY_ID=test-access-key
 AWS_SECRET_ACCESS_KEY=test-secret-key
 AWS_STORAGE_BUCKET_NAME=test-bucket
 AWS_S3_REGION_NAME=us-east-1
-AWS_S3_CUSTOM_DOMAIN=test-bucket.s3.amazonaws.com
 AWS_S3_FILE_OVERWRITE=False
+AWS_DEFAULT_ACL=None
+AWS_S3_VERITY=True
+DEFAULT_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
 
-# OpenAI
-OPENAI_API_KEY=sk-test-chatgpt-key
+# -------------------------------
+# PostreSQL Connection Settings
+# -------------------------------
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=test-db
+DB_USER=test-user
+DB_PASSWORD=test-password
+DB_HOST=localhost
+DB_PORT=5432
 
+# -------------------------------
+# Django Superuser Credentials
+# -------------------------------
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_EMAIL=admin@gmail.com
+DJANGO_SUPERUSER_PASSWORD=admin
+
+ 
+# -------------------------------
+# Email configuration
+# -------------------------------
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-password
+
+
+# -------------------------------
+# Redis Connection Settings
+# -------------------------------
+# REDIS_HOST=redis  # for production
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# -------------------------------
 # Sentry
+# -------------------------------
 SENTRY_DSN=
 EOF
 
@@ -183,8 +227,7 @@ AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN', cast=str, default='test-bu
 AWS_S3_FILE_OVERWRITE = config('AWS_S3_FILE_OVERWRITE', cast=bool, default=False)
 AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', cast=str, default='us-east-1')
 
-# Keys
-OPENAI_API_KEY = config('OPENAI_API_KEY', cast=str, default='test-chatgpt-key')
+
 # -------------------------------
 # Sentry Settings
 # -------------------------------
@@ -1141,14 +1184,8 @@ repos:
         args: ['--profile', 'black', '--line-length=120']
 EOF
 
-# pyproject.toml configuration for black and isort
-cat <<EOF > pyproject.toml
-[project]
-name = "${PROJECT_NAME}"
-version = "0.1.0"
-description = "Production-ready Django project"
-readme = "README.md"
-requires-python = ">=3.12"
+# Append black and isort configuration to pyproject.toml
+cat <<EOF >> pyproject.toml
 
 [tool.black]
 line-length = 120
@@ -1205,9 +1242,9 @@ if [ -n "$GITHUB_URL" ]; then
     git commit -m "first commit"
     git branch -M main
     git remote add origin "$SSH_URL"
-    git push -u origin main
+    # git push -u origin main
     
-    echo "Successfully pushed to GitHub!"
+    echo "Local Git initialized and remote 'origin' added. You can now push your code."
 else
     echo "GitHub setup skipped."
 fi
