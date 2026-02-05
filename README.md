@@ -37,6 +37,8 @@ This script automates the creation and configuration of:
     - `Gunicorn` server.
 - **Error Tracking**: Pre-configured Sentry integration.
 - **Authentication**: JWT Auth and Social Auth (Google) ready.
+- **Automation & Quality**: Pre-configured `pre-commit` hooks, `Black` formatter, and `Isort`.
+- **ERD Generation**: Automated Entity Relationship Diagram creation script (`erd.sh`).
 - **GitHub Integration**: Automatic repo initialization and first push.
 
 ---
@@ -65,6 +67,7 @@ After running the script, you can easily find and change specific settings by se
 - **APP NAMES**: During run, you'll be prompted for app names (e.g., `users admin`).
 - **SHEMANTO**: Search for this to find author credits and links.
 - **DOCKER HUB**: Look in `.github/workflows/pipeline.yml` to change the `DOCKER_REPO`.
+- **CODE STYLE**: Configuration is in `pyproject.toml` and `.pre-commit-config.yaml`.
 - **AWS CONFIG**: Look in `infra/terraform/` to adjust regions, instance types, and bucket names.
 - **DOMAIN/SSL**: Look in `infra/ansible/playbook.yml` to change `website_domain` and `certbot_email`.
 - **DATABASE**: Search for `DATABASE_URL` in `.env`.

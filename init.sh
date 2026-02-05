@@ -17,10 +17,10 @@ rm -f main.py
 
 echo "Installing Django and dependencies..."
 echo "Installing Core dependencies..."
-uv add django django-cors-headers djangorestframework djangorestframework-simplejwt drf-yasg isort black python-decouple django-extensions gunicorn whitenoise psycopg2-binary sentry-sdk[django] boto3 django-storages
+uv add django django-cors-headers djangorestframework djangorestframework-simplejwt drf-yasg "isort>=5.13.2" "black>=24.4.2" python-decouple django-extensions gunicorn whitenoise psycopg2-binary sentry-sdk[django] boto3 django-storages
 
 echo "Installing Auth & Social dependencies..."
-uv add django-allauth dj-rest-auth requests cryptography
+uv add django-allauth dj-rest-auth requests cryptography "pre-commit>=3.6.0"
 
 echo "Setting up Django Project..."
 source .venv/bin/activate
@@ -614,10 +614,30 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+*aws-credentials/
+
+hosts.ini
+*.pem
+.env
 EOF
 
+# --------------------- 9. ERD bash file ---------------------
+echo "Creating ERD bash file..."
+cat <<EOF > erd.sh
+#!/bin/bash
+# Generate Entity Relationship Diagram for all models
 
-# --------------------- 9. Docker Related Files ---------------------
+python manage.py graph_models -a -g -o erd.jpg
+EOF
+chmod +x erd.sh
+
+# --------------------- 10. Docker Related Files ---------------------
 echo "Creating docker files..."
 PROJECT_NAME=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
 
@@ -781,7 +801,7 @@ chmod +x entrypoint.sh
 echo "Docker files created successfully!"
 
 
-# --------------------- 10. CI/CD setup ---------------------
+# --------------------- 11. CI/CD setup ---------------------
 echo "Creating CI/CD files for GitHub Actions..."
 mkdir -p .github/workflows
 
@@ -849,7 +869,7 @@ cat <<EOF > .github/workflows/pipeline.yml
 EOF
 echo "CI/CD files created (commented out by default)."
 
-# --------------------- 11. IaC setup ---------------------
+# --------------------- 12. IaC setup ---------------------
 echo "Creating Infrastructure as Code (IaC) files..."
 mkdir -p infra/ansible infra/terraform
 
@@ -1120,7 +1140,73 @@ EOF
 
 echo "IaC files created successfully!"
 
-# --------------------- 12. Github setup ---------------------
+# --------------------- 13. Code Formatting Setup ---------------------
+echo "Setting up code formatting tools..."
+
+# .pre-commit-config.yaml
+cat <<EOF > .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3
+        args: ['--line-length=120']
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--line-length=120']
+EOF
+
+# pyproject.toml configuration for black and isort
+cat <<EOF > pyproject.toml
+[project]
+name = "${PROJECT_NAME}"
+version = "0.1.0"
+description = "Production-ready Django project"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 120
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+EOF
+
+# Install pre-commit hooks
+if [ -d ".git" ] || [ -f ".git" ]; then
+    pre-commit install
+else
+    # If git isn't initialized yet, we'll initialize it now to make pre-commit work
+    git init
+    pre-commit install
+fi
+
+echo "Code formatting setup complete!"
+
+# --------------------- 14. Github setup ---------------------
 
 echo "------------------------------------------------"
 read -p "Enter GitHub Repository URL (or press Enter to skip): " GITHUB_URL
@@ -1163,5 +1249,5 @@ echo "This setup is made by Shemanto Sharkar"
 echo "🚩 Github: https://github.com/shemanto27"
 echo "🚩 LinkedIn: https://linkedin.com/in/shemanto"
 echo ""
-echo "Initialization complete! Your project is production-ready. This is for Django Backend project deployable in AWS with CI/CD pipeline(GitHub Actions), Sentry Error tracking, Docker, Ansible, Terraform, Github setup"
+echo "Initialization complete! Your project is production-ready. This is for Django Backend project deployable in AWS with CI/CD pipeline(GitHub Actions), Sentry Error tracking, Docker, Ansible, Terraform, ERD generation, Pre-commit code formatting, and Github setup"
 echo "-------------------🎉🎉🎉-------------------"
