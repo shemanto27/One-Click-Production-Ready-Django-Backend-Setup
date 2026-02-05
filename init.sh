@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# --- 1. Manage uv ---
+# --------------------- 1. Manage uv ---------------------
 if ! command -v uv &> /dev/null; then
     echo "uv is not installed. Installing uv..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -10,20 +10,24 @@ else
     uv self update
 fi
 
-# --- 2. Initialize Project ---
+# --------------------- 2. Initialize Project ---------------------
 echo "Initializing uv project..."
 uv init .
 rm -f main.py
 
 echo "Installing Django and dependencies..."
+echo "Installing Core dependencies..."
 uv add django django-cors-headers djangorestframework djangorestframework-simplejwt drf-yasg isort black python-decouple django-extensions gunicorn whitenoise psycopg2-binary sentry-sdk[django] boto3 django-storages
+
+echo "Installing Auth & Social dependencies..."
+uv add django-allauth dj-rest-auth requests cryptography
 
 echo "Setting up Django Project..."
 source .venv/bin/activate
 django-admin startproject core .
 
 
-# --- 3. Create Apps ---
+# --------------------- 3. Create Apps ---------------------
 echo "creating apps folder"
 mkdir -p apps
 touch apps/__init__.py
@@ -35,12 +39,25 @@ echo "------------------------------------------------"
 for app in $apps; do
     python manage.py startapp "$app"
     mv "$app" apps/
-    # Fix the app name in apps.py
-    sed -i "s/name = [\"']$app[\"']/name = 'apps.$app'/g" "apps/$app/apps.py"
-    echo "Successfully created and moved app: $app"
+    
+    # Fix the app name in apps.py and add a unique label to avoid conflicts (e.g., with 'admin')
+    # Using a combined sed for better reliability
+    sed -i "s/name = [\"']$app[\"']/name = 'apps.$app'\n    label = 'apps_$app'/g" "apps/$app/apps.py"
+    
+    # Create industry-standard files
+    touch "apps/$app/serializers.py"
+    cat > "apps/$app/urls.py" << EOF
+from django.urls import path
+
+urlpatterns = [
+    # Add your routes here
+]
+EOF
+
+    echo "Successfully created and moved app: $app (with urls.py and serializers.py)"
 done
 
-# --- 4. Creating .env file ---
+# --------------------- 4. Creating .env file ---------------------
 echo "Creating .env file..."
 cat > .env << EOF
 DEBUG=True
@@ -67,7 +84,79 @@ GOOGLE_CALLBACK_URL=http://localhost:3001
 SENTRY_DSN=
 EOF
 
-# --- 5. Update settings.py ---
+# --------------------- 5. Generate local app routes for core/urls.py ---------------------
+LOCAL_APP_URLS=""
+for app in $apps; do
+    LOCAL_APP_URLS+="    path('v1/$app/', include('apps.$app.urls')),
+"
+done
+
+echo "Updating core/urls.py..."
+cat > core/urls.py << EOF
+from django.contrib import admin
+from django.urls import path, include
+from django.shortcuts import redirect
+
+
+#--------------------------------------
+# DRF-YASG API Documentation
+#--------------------------------------
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Project API - Made by Shemanto Sharkar",
+        default_version='v1',
+        description="API documentation for the project by Shemanto",
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
+#--------------------------------------
+
+
+
+#--------------------------------------
+# Sentry Error Trigger
+#--------------------------------------
+def trigger_error(request):
+    division_by_zero = 1 / 0
+#--------------------------------------
+
+
+
+#--------------------------------------
+# Redirect backend root to docs
+#--------------------------------------
+def redirect_to_docs(request):
+    """Redirect root URL to API documentation"""
+    return redirect('schema-swagger-ui')
+#--------------------------------------
+
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    # Sentry Error Trigger
+    path('sentry-debug/', trigger_error),
+
+    # Local app routes (v1 prefix)
+${LOCAL_APP_URLS}
+    
+    # API Documentation
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+
+    # Redirect root to docs
+    path('', redirect_to_docs, name='root-redirect'),
+]
+EOF
+
+
+# --------------------- 6. Update settings.py ---------------------
 echo "Updating settings.py with production-ready template..."
 
 # Format the apps list for Python
@@ -137,8 +226,8 @@ CORS_ALLOW_HEADERS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://api.menusidekick.app", "https://menusidekick.app",
-    "http://api.menusidekick.app", "http://menusidekick.app",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 
 # -------------------------------
@@ -178,7 +267,7 @@ EXTERNAL_APPS = [
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
-SITE_ID = 4
+SITE_ID = 1
 
 # -------------------------------
 # Middleware
@@ -293,29 +382,31 @@ SIMPLE_JWT = {
 # -------------------------------
 # Allauth Settings
 # -------------------------------
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_UNIQUE_EMAIL = True
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'prompt': 'select_account'},
-        'OAUTH_PKCE_ENABLED': True,
-        'APP': {
-            'client_id': GOOGLE_WEB_CLIENT_ID,
-            'secret': GOOGLE_WEB_CLIENT_SECRET,
-        }
-    }
-}
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 EOF
 
 
-# --- 5. Add gitignore ---
-cat <<EOF > .gitignore
+# --------------------- 7. Run Migrations & Create Superuser ---------------------
+echo "Running migrations..."
+python manage.py makemigrations
+python manage.py migrate
+
+echo "Creating superuser..."
+export DJANGO_SUPERUSER_USERNAME=admin
+export DJANGO_SUPERUSER_EMAIL=admin@gmail.com
+export DJANGO_SUPERUSER_PASSWORD=admin123
+python manage.py createsuperuser --noinput || echo "Superuser already exists."
+
+# --------------------- 8. Add gitignore ---------------------
+cat <<'EOF' > .gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -526,8 +617,511 @@ __marimo__/
 EOF
 
 
+# --------------------- 9. Docker Related Files ---------------------
+echo "Creating docker files..."
+PROJECT_NAME=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
 
-# --- 6. Github setup ---
+# .dockerignore
+cat <<'EOF' > .dockerignore
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.backend.env
+.frontend.env
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.venv
+__pycache__
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+
+# Coverage / Testing
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.cache
+pytest_cache/
+
+# Git
+.gitignore
+EOF
+
+# Dockerfile
+cat <<EOF > Dockerfile
+# Base image
+FROM python:3.12-slim-bullseye
+
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1  
+ENV PYTHONUNBUFFERED=1
+
+# Install uv
+RUN pip install uv
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN uv sync --frozen
+
+# adding venv's bin to PATH
+ENV PATH="/app/.venv/bin:\$PATH"
+
+# Copy the rest of the application code
+COPY . .
+
+# Copy entrypoint
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Set entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Start server using Python module (most reliable with uv)
+CMD ["python", "-m", "gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120"]
+EOF
+
+# docker-compose.dev.yml
+cat <<EOF > docker-compose.dev.yml
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${PROJECT_NAME}-backend
+    container_name: ${PROJECT_NAME}-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    restart: always
+EOF
+
+# docker-compose.prod.yml
+cat <<EOF > docker-compose.prod.yml
+version: "3.9"
+
+services:
+  backend:
+    image: shemanto27/${PROJECT_NAME}:backend-latest
+    container_name: ${PROJECT_NAME}-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    restart: always
+EOF
+
+# entrypoint.sh
+cat <<'EOF' > entrypoint.sh
+#!/bin/sh
+set -e
+
+echo "Starting Django entrypoint script..."
+
+# 1. Wait for database (only if DATABASE_URL is set)
+if [ -n "$DATABASE_URL" ]; then
+  echo "Waiting for database..."
+  sleep 3
+fi
+
+# 2. Apply database migrations
+echo "Running migrations..."
+python manage.py migrate --noinput
+
+# 3. Collect static files
+echo "Collecting static files..."
+python manage.py collectstatic --noinput --clear
+
+# 4. Create superuser only if credentials are provided
+if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+  echo "Creating superuser..."
+  python manage.py createsuperuser --noinput || echo "Superuser already exists or creation failed"
+else
+  echo "Skipping superuser creation - credentials not provided"
+fi
+
+echo "Entrypoint script completed successfully!"
+
+# 5. Execute the CMD from Dockerfile
+echo "Starting Gunicorn..."
+exec "$@"
+EOF
+
+chmod +x entrypoint.sh
+echo "Docker files created successfully!"
+
+
+# --------------------- 10. CI/CD setup ---------------------
+echo "Creating CI/CD files for GitHub Actions..."
+mkdir -p .github/workflows
+
+cat <<EOF > .github/workflows/pipeline.yml
+# name: CI/CD Pipeline
+# 
+# on:
+#   push:
+#     branches:
+#       - main
+# 
+# env:
+#   DOCKER_REPO: shemanto27/${PROJECT_NAME}
+#   BACKEND_TAG_LATEST: backend-latest
+# 
+#   
+# jobs:
+#   dockerhub:
+#     name: Build, Tag and Push on Docker Hub
+#     runs-on: ubuntu-latest
+# 
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+# 
+#       # Optional: run tests
+#       - name: Run tests
+#         run: |
+#           echo "Skipping tests (add your test commands)"
+# 
+#       - name: Log in to Docker Hub
+#         env:
+#           DOCKERHUB_USERNAME: \${{ secrets.DOCKERHUB_USERNAME }}
+#           DOCKERHUB_TOKEN: \${{ secrets.DOCKERHUB_TOKEN }}
+#         run: |
+#           echo "\$DOCKERHUB_TOKEN" | docker login -u "\$DOCKERHUB_USERNAME" --password-stdin
+# 
+#       - name: Build backend image
+#         run: |
+#           docker build --no-cache -t \$DOCKER_REPO:\$BACKEND_TAG_LATEST .
+# 
+#       - name: Push backend image
+#         run: docker push \$DOCKER_REPO:\$BACKEND_TAG_LATEST
+#         
+# 
+#   deploy:
+#     name: Deploy to EC2
+#     runs-on: ubuntu-latest
+#     needs: dockerhub
+# 
+#     steps:
+#       - name: SSH to EC2 and deploy
+#         uses: appleboy/ssh-action@v1.0.0
+#         with:
+#           host: \${{ secrets.EC2_HOST }}
+#           username: \${{ secrets.EC2_USER }}
+#           key: \${{ secrets.EC2_SSH_PRIVATE_KEY }}
+#           script: |
+#             set -e
+#             cd /home/ubuntu/backend
+#             docker compose -f docker-compose.prod.yml down
+#             docker compose -f docker-compose.prod.yml pull
+#             docker compose -f docker-compose.prod.yml up -d --force-recreate --remove-orphans
+#             sudo systemctl restart nginx
+EOF
+echo "CI/CD files created (commented out by default)."
+
+# --------------------- 11. IaC setup ---------------------
+echo "Creating Infrastructure as Code (IaC) files..."
+mkdir -p infra/ansible infra/terraform
+
+# Ansible hosts.ini
+cat <<EOF > infra/ansible/hosts.ini
+[webservers]
+ec2-1 ansible_host=YOUR_EC2_PUBLIC_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/mykey.pem
+EOF
+
+# Ansible playbook.yml
+cat <<EOF > infra/ansible/playbook.yml
+- hosts: webservers
+  become: yes
+
+  vars:
+    backend_path: /home/ubuntu/backend
+    website_domain: example.com           
+    certbot_email: your-email@example.com 
+    env_file_src: ../../.env
+    docker_compose_src: ../../docker-compose.prod.yml
+    nginx_conf_src: ../../nginx.backend.conf
+
+  tasks:
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install dependencies
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    - name: Create backend folder
+      file:
+        path: "{{ backend_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy .env file from local to EC2
+      copy:
+        src: "{{ env_file_src }}"
+        dest: "{{ backend_path }}/.env"
+        mode: "0600"
+
+    - name: Copy docker-compose.prod.yml to EC2
+      copy:
+        src: "{{ docker_compose_src }}"
+        dest: "{{ backend_path }}/docker-compose.yml"
+        mode: "0644"
+      notify:
+        - restart docker-compose
+
+    - name: Copy Nginx config to EC2
+      copy:
+        src: "{{ nginx_conf_src }}"
+        dest: /etc/nginx/sites-available/backend
+        mode: "0644"
+      notify:
+        - reload nginx
+
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/backend
+        dest: /etc/nginx/sites-enabled/backend
+        state: link
+      notify:
+        - reload nginx
+
+    - name: Remove default Nginx site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify:
+        - reload nginx
+
+    - name: Obtain SSL certificate via Certbot
+      command: >
+        certbot --nginx
+        -d {{ website_domain }}
+        --non-interactive
+        --agree-tos
+        -m {{ certbot_email }}
+      args:
+        creates: /etc/letsencrypt/live/{{ website_domain }}/fullchain.pem
+
+  handlers:
+    - name: reload nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: restart docker-compose
+      command: docker-compose up -d
+      args:
+        chdir: "{{ backend_path }}"
+EOF
+
+# Terraform main.tf
+cat <<EOF > infra/terraform/main.tf
+# AWS Key Pair
+resource "aws_key_pair" "terraform_key" {
+  key_name   = "terraform-key-${PROJECT_NAME}"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
+
+# EC2 instance
+resource "aws_instance" "ec2_server_1" {
+  ami                    = var.ami
+  instance_type          = var.instance_type
+  key_name               = aws_key_pair.terraform_key.key_name
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+
+  tags = {
+    Name = "${PROJECT_NAME}"
+  }
+}
+
+# Elastic IP
+resource "aws_eip" "static_ip" {
+  instance = aws_instance.ec2_server_1.id
+}
+
+
+# S3 bucket
+resource "aws_s3_bucket" "media" {
+  bucket = var.bucket_name
+}
+
+
+# RDS Postgres
+resource "aws_db_instance" "postgres" {
+  engine              = "postgres"
+  instance_class      = "db.t3.micro"
+  allocated_storage   = 20
+  db_name             = "${PROJECT_NAME}db"
+  username            = var.db_username
+  password            = var.db_password
+  skip_final_snapshot = true
+
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id] 
+  publicly_accessible    = false                          
+}
+EOF
+
+# Terraform outputs.tf
+cat <<'EOF' > infra/terraform/outputs.tf
+output "ec2_public_ip" {
+  value = aws_eip.static_ip.public_ip
+}
+
+output "s3_bucket_name" {
+  value = aws_s3_bucket.media.bucket
+}
+
+output "rds_endpoint" {
+  value       = aws_db_instance.postgres.endpoint
+  description = "RDS instance endpoint (hostname)"
+  sensitive   = true
+}
+
+output "rds_username" {
+  value       = aws_db_instance.postgres.username
+  sensitive   = true
+}
+
+output "rds_password" {
+  value       = aws_db_instance.postgres.password
+  sensitive   = true
+}
+EOF
+
+# Terraform provider.tf
+cat <<EOF > infra/terraform/provider.tf
+provider "aws" {
+  region  = "us-east-1"
+  profile = "terraform-user-1"
+}
+EOF
+
+# Terraform security_groups.tf
+cat <<'EOF' > infra/terraform/security_groups.tf
+resource "aws_security_group" "ec2_sg" {
+  name        = "ec2-allow-all-testing"
+  description = "Allow all inbound traffic for testing only"
+
+  # SSH
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Django / API
+  ingress {
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # HTTP
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # HTTPS
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "ec2-allow-all-testing"
+  }
+}
+EOF
+
+# Terraform variables.tf
+cat <<'EOF' > infra/terraform/variables.tf
+variable "instance_type" {
+  description = "EC2 instance type"
+  default     = "t3.micro"
+}
+
+variable "ami" {
+  description = "AMI"
+  default     = "ami-061fe7df6ad657197"
+}
+
+variable "bucket_name" {
+  description = "S3 bucket name"
+}
+
+variable "ec2_name" {
+  description = "Name tag for EC2 instance"
+}
+
+variable "db_username" {
+  description = "RDS Postgres username"
+}
+
+variable "db_password" {
+  description = "RDS Postgres password"
+  sensitive   = true
+}
+EOF
+
+echo "IaC files created successfully!"
+
+# --------------------- 12. Github setup ---------------------
+
 echo "------------------------------------------------"
 read -p "Enter GitHub Repository URL (or press Enter to skip): " GITHUB_URL
 echo "------------------------------------------------"
