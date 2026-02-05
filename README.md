@@ -36,7 +36,7 @@ This script automates the creation and configuration of:
     - `Whitenoise` for static files.
     - `Gunicorn` server.
 - **Error Tracking**: Pre-configured Sentry integration.
-- **Authentication**: JWT Auth and Social Auth (Google) ready.
+- **Authentication**: JWT Auth ready.
 - **Automation & Quality**: Pre-configured `pre-commit` hooks, `Black` formatter, and `Isort`.
 - **ERD Generation**: Automated Entity Relationship Diagram creation script (`erd.sh`).
 - **GitHub Integration**: Automatic repo initialization and first push.

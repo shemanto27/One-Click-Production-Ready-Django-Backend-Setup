@@ -20,7 +20,7 @@ echo "Installing Core dependencies..."
 uv add django django-cors-headers djangorestframework djangorestframework-simplejwt drf-yasg "isort>=5.13.2" "black>=24.4.2" python-decouple django-extensions gunicorn whitenoise psycopg2-binary sentry-sdk[django] boto3 django-storages
 
 echo "Installing Auth & Social dependencies..."
-uv add django-allauth dj-rest-auth requests cryptography "pre-commit>=3.6.0"
+uv add "pre-commit>=3.6.0"
 
 echo "Setting up Django Project..."
 source .venv/bin/activate
@@ -74,11 +74,6 @@ AWS_S3_FILE_OVERWRITE=False
 
 # OpenAI
 OPENAI_API_KEY=sk-test-chatgpt-key
-
-# Google OAuth
-GOOGLE_WEB_CLIENT_ID=test-google-client-id
-GOOGLE_WEB_CLIENT_SECRET=test-google-client-secret
-GOOGLE_CALLBACK_URL=http://localhost:3001
 
 # Sentry
 SENTRY_DSN=
@@ -190,10 +185,6 @@ AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', cast=str, default='us-east-1')
 
 # Keys
 OPENAI_API_KEY = config('OPENAI_API_KEY', cast=str, default='test-chatgpt-key')
-GOOGLE_WEB_CLIENT_ID = config('GOOGLE_WEB_CLIENT_ID', cast=str, default='test-google-client-id')
-GOOGLE_WEB_CLIENT_SECRET = config('GOOGLE_WEB_CLIENT_SECRET', cast=str, default='test-google-client-secret')
-GOOGLE_CALLBACK_URL = config('GOOGLE_CALLBACK_URL', cast=str, default='http://localhost:3001')    
-
 # -------------------------------
 # Sentry Settings
 # -------------------------------
@@ -248,15 +239,6 @@ EXTERNAL_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
 
-    # Auth & Social
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-
     # Utils
     'drf_yasg',
     'storages',
@@ -282,7 +264,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -379,18 +360,6 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# -------------------------------
-# Allauth Settings
-# -------------------------------
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = "none"
-
-# Authentication Backends
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
 EOF
 
 
