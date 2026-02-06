@@ -58,6 +58,8 @@ This script automates the creation and configuration of:
    ./init.sh
    ```
 
+> **Note**: During the first run, you might see `black` or `isort` show a **Failed** status. This is **good**! It means the tools successfully identified and auto-formatted your new code to match production standards. Subsequent commits will show **Passed**.
+
 ---
 
 ## ⚙️ Customization (Ctrl + F)

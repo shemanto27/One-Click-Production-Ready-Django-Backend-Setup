@@ -1282,5 +1282,8 @@ echo "This setup is made by Shemanto Sharkar"
 echo "🚩 Github: https://github.com/shemanto27"
 echo "🚩 LinkedIn: https://linkedin.com/in/shemanto"
 echo ""
-echo "Initialization complete! Your project is production-ready. This is for Django Backend project deployable in AWS with CI/CD pipeline(GitHub Actions), Sentry Error tracking, Docker, Ansible, Terraform, ERD generation, Pre-commit code formatting, and Github setup"
+echo 'Note: If pre-commit hooks showed "Failed" during the first run, it means they'
+echo "successfully reformatted your files to meet production standards."
+echo ""
+echo 'Initialization complete! Your project is production-ready. This is for Django Backend project deployable in AWS with CI/CD pipeline (GitHub Actions), Sentry Error tracking, Docker, Ansible, Terraform, ERD generation, Pre-commit code formatting, and Github setup'
 echo "-------------------🎉🎉🎉-------------------"
