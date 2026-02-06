@@ -11,7 +11,32 @@ from one_click_drf.generator import (
     generate_observability
 )
 
-app = typer.Typer(help="Initialize a Production Ready Django REST Framework project")
+help_text="""
+Initialize a Production Ready Django REST Framework project in One Click.
+
+Made with ❤️ by Shemanto Sharkar
+GitHub: https://github.com/shemanto27
+LinkedIn: https://www.linkedin.com/in/shemanto/
+
+Usage:
+    one-click-drf init [OPTIONS] [PATH]
+
+Options:
+    --all                       Enable everything
+    --docker                    Include Docker support
+    --ci-cd                     Include GitHub Actions
+    --iac                       Include Terraform/Ansible
+    --observability             Include Prometheus/Grafana
+    --help                      Show this message and exit
+
+Examples:
+    one-click-drf init myproject
+    one-click-drf init myproject --docker --ci-cd --iac --observability
+    one-click-drf init myproject --all
+    one-click-drf init myproject --docker --ci-cd --iac --observability --all
+"""
+
+app = typer.Typer(help=help_text, add_completion=False)
 console = Console()
 
 @app.command()

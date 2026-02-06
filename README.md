@@ -1,22 +1,68 @@
+<a name="top"></a>
+![heading image](https://github.com/user-attachments/assets/26db4ea0-580e-452c-89ae-b6d381fc1018)
+
 # One Click DRF (OCD) 🚀
 
 **One Click DRF** is a powerful CLI tool designed to bootstrap **production-ready** Django REST Framework projects in seconds.
 
+[![PyPI version](https://img.shields.io/pypi/v/one-click-drf)](https://pypi.org/project/one-click-drf/)
+[![Python versions](https://img.shields.io/pypi/pyversions/one-click-drf)](https://pypi.org/project/one-click-drf/)
+[![License](https://img.shields.io/github/license/shemanto27/One-Click-Production-Ready-Django-Backend-Setup)](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup/blob/main/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/shemanto27/One-Click-Production-Ready-Django-Backend-Setup?style=social)](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup)
+
+### 🛠️ Technology Stack
+[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Django](https://img.shields.io/badge/Django-092E20?logo=django&logoColor=white)](https://djangoproject.com)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://docker.com)
+[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?logo=terraform&logoColor=white)](https://terraform.io)
+[![Ansible](https://img.shields.io/badge/Ansible-EE0000?logo=ansible&logoColor=white)](https://ansible.com)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)](https://prometheus.io)
+[![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)](https://grafana.com)
+
+⭐ **Star us on GitHub** — your support motivates us a lot! 🙏😊
+
+[![Follow Shemanto Sharkar](https://img.shields.io/badge/Follow-LinkedIn-0A66C2?logo=linkedin)](https://www.linkedin.com/in/shemanto/)
+[![Share on LinkedIn](https://img.shields.io/badge/share-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup)
+
+---
+
 Stop copy-pasting code from old projects. Start with a solid foundation.
 
-## 🌟 Why this tool?
+## 🌟 The Story Behind One Click DRF
+Every time a new project starts at the office, I see a familiar cycle: developers need to start everything from scratch, from ground zero, through repetitive and manual work like this:
+- **Repetitive Installations:** Manually installing `djangorestframework`, `django-cors-headers`, `drf-yasg(Swagger)`, and other essential packages every single time.
+- **Settings Fatigue:** Manually tweaking settings, creating `.env` files, and mapping them to variables.
+- **The Hunt:** Going to GitHub just to find a standard Python `.gitignore`.
+- **Human Error:** Forgetting something critical—like CORS settings—only to realize it hours later when the frontend developer can't connect.
+- **Confidence Gap:** Even after hours of setup, no one is 100% sure if the environment is truly "perfect" or "production-ready."
 
-Most Django tutorials teach you a basic structure. But in production, you need:
-- Settings split into `base`, `dev`, `prod`.
-- Docker & Docker Compose setup.
-- CI/CD pipelines.
-- Infrastructure as Code (Terraform).
-- Observability (Prometheus/Grafana).
+**One Click DRF** was born to solve this. It automates these repetitive tasks and guarantees a battle-tested, production-ready foundation in **seconds**. No more copy-pasting, no more forgotten settings—just one command to start building what actually matters.
 
-**ocd** gives you all of this with one command.
+## 🚀 What you get with `ocd`
+When you initialize a project with `ocd`, you’re not just getting a folder—you’re getting a full production environment:
+- **🐳 Docker Ready:** Multi-stage `Dockerfile` and `docker-compose.yml` for development and production.
+- **⚙️ CI/CD (GitHub Actions):** Pre-configured workflows for automated testing, linting, and deployment.
+- **🏗️ Infrastructure as Code (IaC):** Terraform templates to manage your cloud resource effortlessly.
+- **☁️ AWS Deployment Ready:** Built-in configurations to deploy your backend to AWS with confidence.
+- **📊 Monitoring & Observability:** Integrated Prometheus and Grafana setup to keep an eye on your app's health.
+- **🛠️ Production Settings & .env:** Professionally split `settings.py` and automatically generated `.env` file.
+- **📝 Swagger API Ready:** Instant API documentation with `drf-yasg` so you're ready to test immediately.
+- **📂 Organized Apps Folder:** A clean architecture where all your Django apps live in a dedicated `apps/` directory.
+- **🔒 Standard .gitignore:** A pre-configured, standard Python `.gitignore` so you don't have to find one.
+- **🚀 GitHub Integration:** Option to automatically initialize a git repo and push to a new GitHub repository in one go.
 
 ## 📦 Installation
 
+Since **one-click-drf** is a CLI tool, it is recommended to install it globally using `uv`:
+
+```bash
+uv tool install one-click-drf
+```
+
+If your system doesn't have `uv` yet, follow the [installation guide here](https://docs.astral.sh/uv/getting-started/installation/).
+
+Alternatively, you can use pip:
 ```bash
 pip install one-click-drf
 ```
@@ -97,3 +143,6 @@ We welcome contributions!
 ## ⚙️ Configuration
 
 On first run, `ocd` will ask for your GitHub and DockerHub usernames. These are saved in `~/.config/one-click-drf/config.toml` so you don't have to type them again.
+
+---
+[Back to Top](#top)

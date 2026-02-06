@@ -1,22 +1,68 @@
+<a name="top"></a>
+![heading image](https://github.com/user-attachments/assets/26db4ea0-580e-452c-89ae-b6d381fc1018)
+
 # One Click DRF (OCD) 🚀
 
 **One Click DRF** হলো একটি শক্তিশালী CLI টুল যা দিয়ে আপনি মুহূর্তের মধ্যে **প্রোডাকশন-রেডি** Django REST Framework প্রোজেক্ট তৈরি করতে পারবেন।
 
+[![PyPI version](https://img.shields.io/pypi/v/one-click-drf)](https://pypi.org/project/one-click-drf/)
+[![Python versions](https://img.shields.io/pypi/pyversions/one-click-drf)](https://pypi.org/project/one-click-drf/)
+[![License](https://img.shields.io/github/license/shemanto27/One-Click-Production-Ready-Django-Backend-Setup)](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup/blob/main/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/shemanto27/One-Click-Production-Ready-Django-Backend-Setup?style=social)](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup)
+
+### 🛠️ টেকনোলজি স্ট্যাক (Technology Stack)
+[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Django](https://img.shields.io/badge/Django-092E20?logo=django&logoColor=white)](https://djangoproject.com)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://docker.com)
+[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?logo=terraform&logoColor=white)](https://terraform.io)
+[![Ansible](https://img.shields.io/badge/Ansible-EE0000?logo=ansible&logoColor=white)](https://ansible.com)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)](https://prometheus.io)
+[![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)](https://grafana.com)
+
+⭐ **গিটহাবে একটি স্টার (Star) দিন** — আপনার সাপোর্ট আমাদের অনুপ্রাণিত করে! 🙏😊
+
+[![Follow Shemanto Sharkar](https://img.shields.io/badge/Follow-LinkedIn-0A66C2?logo=linkedin)](https://www.linkedin.com/in/shemanto/)
+[![Share on LinkedIn](https://img.shields.io/badge/share-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup)
+
+---
+
 পুরানো প্রোজেক্ট থেকে কোড কপি-পেস্ট করা বন্ধ করুন। একটি মজবুত ভিত্তি দিয়ে শুরু করুন।
 
-## 🌟 কেন এই টুল?
+## 🌟 One Click DRF-এর পেছনের গল্প
+অফিসে যখনই নতুন কোনো প্রোজেক্ট শুরু হয়, আমি সবসময় একই দৃশ্য দেখি: ডেভেলপারদের সবকিছু একদম স্ক্র্যাচ থেকে, গ্রাউন্ড জিরো থেকে শুরু করতে হয়—যেখানে তাদের অসংখ্য পুনরাবৃত্তিমূলক এবং ম্যানুয়াল কাজ করতে হয়:
+- **পুনরাবৃত্তিমূলক ইনস্টলেশন:** প্রতিবার ম্যানুয়ালি `djangorestframework`, `django-cors-headers`, `drf-yasg(Swagger)` এবং অন্যান্য প্রয়োজনীয় প্যাকেজ ইনস্টল করা।
+- **সেটিংসের ঝামেলা:** ম্যানুয়ালি সেটিংস ফাইল পরিবর্তন করা, `.env` ফাইল তৈরি করা এবং সেগুলোকে সেটিংসে ম্যাপ করা।
+- **খোঁজাখুঁজি:** শুধুমাত্র একটি স্ট্যান্ডার্ড পাইথন `.gitignore` ফাইল পেতে গিটহাবে গিয়ে সার্চ করা।
+- **মানুষের ভুল:** গুরুত্বপূর্ণ কোনো সেটিংস—যেমন CORS—ভুলে যাওয়া, যা কেবল তখনই ধরা পড়ে যখন ফ্রন্টেন্ড ডেভেলপার কানেক্ট করতে পারে না।
+- **আত্মবিশ্বাসের অভাব:** ঘণ্টার পর ঘণ্টা সেটআপ করার পরেও কেউ নিশ্চিত হতে পারে না যে এটি আসলে "পারফেক্ট" বা "প্রোডাকশন-রেডি" কি না।
 
-অধিকাংশ Django টিউটোরিয়ালে সাধারণ স্ট্রাকচার শেখানো হয়। কিন্তু প্রোডাকশনে কাজ করার জন্য আপনার প্রয়োজন:
-- সেটিংস ফাইলগুলোকে `base`, `dev`, `prod`-এ ভাগ করা।
-- Docker এবং Docker Compose সেটআপ।
-- CI/CD পাইপলাইন (স্বয়ংক্রিয় টেস্টিং)।
-- Infrastructure as Code (Terraform)।
-- Observability (Prometheus/Grafana)।
+**One Click DRF** এই সমস্যার সমাধান করার জন্য তৈরি। এটি এই সব পুনরাবৃত্তিমূলক কাজগুলো কয়েক **সেকেন্ডের** মধ্যে সম্পন্ন করে এবং একটি প্রোডাকশন-রেডি গ্যারান্টি দেয়। আর কোনো কপি-পেস্ট নয়, কোনো কিছু ভুলে যাওয়ার ভয় নেই—শুধুমাত্র একটি কমান্ড দিন আর মূল কাজ শুরু করুন।
 
-**ocd** আপনাকে একটি মাত্র কমান্ডের মাধ্যমে এই সবকিছু সেটআপ করে দেয়।
+## 🚀 `ocd`-র সাথে আপনি যা যা পাচ্ছেন
+যখন আপনি `ocd` দিয়ে একটি প্রোজেক্ট শুরু করবেন, আপনি শুধু একটি ফোল্ডার পাচ্ছেন না—আপনি পাচ্ছেন একটি পূর্ণাঙ্গ প্রোডাকশন এনভায়রনমেন্ট:
+- **🐳 Docker Ready:** ডেভেলপমেন্ট এবং প্রোডাকশনের জন্য মাল্টি-স্টেজ `Dockerfile` এবং `docker-compose.yml`।
+- **⚙️ CI/CD (GitHub Actions):** অটোমেটেড টেস্টিং, লিন্টিং এবং ডেপ্লয়মেন্টের জন্য প্রি-কনফিগার করা ওয়ার্কফ্লো।
+- **🏗️ Infrastructure as Code (IaC):** ক্লাউড রিসোর্স সহজে ম্যানেজ করার জন্য Terraform টেমপ্লেট।
+- **☁️ AWS Deployment Ready:** আপনার ব্যাকএন্ড আত্মবিশ্বাসের সাথে AWS-এ ডেপ্লয় করার জন্য বিল্ট-ইন কনফিগারেশন।
+- **📊 Monitoring & Observability:** আপনার অ্যাপের স্বাস্থ্য পর্যবেক্ষণের জন্য Prometheus এবং Grafana সেটআপ।
+- **🛠️ প্রোডাকশন সেটিংস এবং .env:** প্রফেশনালভাবে সাজানো `settings.py` এবং স্বয়ংক্রিয়ভাবে তৈরি হওয়া `.env` ফাইল।
+- **📝 Swagger API Ready:** `drf-yasg`-এর মাধ্যমে ইনস্ট্যান্ট API ডকুমেন্টেশন, যাতে আপনি সাথে সাথেই টেস্টিং শুরু করতে পারেন।
+- **📂 অর্গানাইজড অ্যাপস ফোল্ডার:** একটি পরিষ্কার আর্কিটেকচার যেখানে আপনার সব Django অ্যাপস একটি ডেডিকেটেড `apps/` ডিরেক্টরিতে থাকে।
+- **🔒 স্ট্যান্ডার্ড .gitignore:** প্রি-কনফিগার করা স্ট্যান্ডার্ড পাইথন `.gitignore` ফাইল।
+- **🚀 গিটহাব ইন্টিগ্রেশন:** স্বয়ংক্রিয়ভাবে গিট রিপোজিটোরি তৈরি করে নতুন গিটহাব রিপোতে পুশ করার সুবিধা।
 
 ## 📦 ইন্সটলেশন (Installation)
 
+যেহেতু **one-click-drf** একটি CLI টুল, তাই এটিকে `uv` ব্যবহার করে ইন্সটল করার পরামর্শ দেওয়া হচ্ছে:
+
+```bash
+uv tool install one-click-drf
+```
+
+আপনার সিস্টেমে `uv` না থাকলে, [এই গাইডটি অনুসরণ করুন](https://docs.astral.sh/uv/getting-started/installation/)।
+
+বিকল্প হিসেবে আপনি pip ব্যবহার করতে পারেন:
 ```bash
 pip install one-click-drf
 ```
@@ -58,7 +104,7 @@ ocd init myproject --all
 |------|-------------|
 | `--docker` | `Dockerfile` এবং `docker-compose.yml` যোগ করে |
 | `--ci-cd` | GitHub Actions ওয়ার্কফ্লো যোগ করে (অটোমেটিক টেস্টিংয়ের জন্য) |
-| `--iac` | AWS-এর জন্য Terraform স্লেটন তৈরি করে |
+| `--iac` | AWS-এর জন্য Terraform স্কেলিটন তৈরি করে |
 | `--observability` | Prometheus কনফিগারেশন যোগ করে |
 | `--all` | ওপরের সব ফিচার একসাথে চালু করে |
 
@@ -99,3 +145,6 @@ project-root/
 ## ⚙️ কনফিগারেশন
 
 প্রথমবার চালানোর সময়, `ocd` আপনার গিটহাব এবং ডকারহাব ইউজার নেম জানতে চাইবে। এগুলো স্বয়ংক্রিয়ভাবে `~/.config/one-click-drf/config.toml` ফাইলে সেভ হয়ে থাকবে, যাতে বারবার টাইপ করতে না হয়।
+
+---
+[উপরে ফিরে যান](#top)
