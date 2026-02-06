@@ -1,0 +1,62 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python / Virtual Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+.nox/
+.tox/
+
+# Environment / Secrets
+.env
+.env.*
+*.pem
+*aws-credentials/
+
+# Docker / Infrastructure
+.dockerignore
+docker-compose*.yml
+Dockerfile
+infra/
+*.tf
+*.tfstate*
+*.tfvars
+
+# Shell Scripts & Diagrams
+*.sh
+erd.jpg
+erd.png
+erd.pdf
+*.jpg
+*.jpeg
+*.png
+*.svg
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3
+
+# Static / Media (Ignored if using S3, or to prevent bloat from local tests)
+staticfiles/
+media/
+# static/  <-- DO NOT ignore if your source assets (CSS/JS) are here

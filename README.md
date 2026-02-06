@@ -1,87 +1,99 @@
-# One-Click Production-Ready Django Backend Setup
+# One Click DRF (OCD) 🚀
 
-![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
-![Django](https://img.shields.io/badge/Django-6.0+-green.svg)
-![DRF](https://img.shields.io/badge/DRF-3.16+-red.svg)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
-![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=flat&logo=terraform&logoColor=white)
-![Ansible](https://img.shields.io/badge/ansible-%23EE0000.svg?style=flat&logo=ansible&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=flat&logo=amazon-aws&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/postgres-%23316192.svg?style=flat&logo=postgresql&logoColor=white)
-![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat&logo=sentry&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=flat&logo=githubactions&logoColor=white)
-![isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)
-![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)
-![Maintained](https://img.shields.io/badge/Maintained-yes-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+**One Click DRF** is a powerful CLI tool designed to bootstrap **production-ready** Django REST Framework projects in seconds.
 
-[![Stars](https://img.shields.io/github/stars/shemanto27/One-Click-Production-Ready-Django-Backend-Setup?style=social)](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup/stargazers)
-[![Forks](https://img.shields.io/github/forks/shemanto27/One-Click-Production-Ready-Django-Backend-Setup?style=social)](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup/network/members)
-[![Issues](https://img.shields.io/github/issues/shemanto27/One-Click-Production-Ready-Django-Backend-Setup)](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup/issues)
+Stop copy-pasting code from old projects. Start with a solid foundation.
 
-A powerful bash script for a one-click **Production-ready Django REST Framework** setup. This setup is designed for modern DevOps workflows, including containerization, infrastructure as code, and automated deployment.
+## 🌟 Why this tool?
 
-## 🚀 Features & Setup
+Most Django tutorials teach you a basic structure. But in production, you need:
+- Settings split into `base`, `dev`, `prod`.
+- Docker & Docker Compose setup.
+- CI/CD pipelines.
+- Infrastructure as Code (Terraform).
+- Observability (Prometheus/Grafana).
 
-This script automates the creation and configuration of:
-- **Django Core**: Latest Django with `uv` package manager.
-- **API Versioning**: Industry-standard `/v1/` routing.
-- **Docker Ready**: `Dockerfile`, `docker-compose.dev.yml`, and `docker-compose.prod.yml`.
-- **CI/CD Pipeline**: GitHub Actions template for Docker Hub and EC2 deployment.
-- **Infrastructure as Code (IaC)**:
-    - **Terraform**: Provision AWS EC2, S3, RDS (Postgres), and Security Groups.
-    - **Ansible**: Automated server provisioning, Nginx setup, and SSL (Certbot).
-- **Security & Production**: 
-    - `python-decouple` for environment variables.
-    - `Whitenoise` for static files.
-    - `Gunicorn` server.
-- **Error Tracking**: Pre-configured Sentry integration.
-- **Authentication**: JWT Auth ready.
-- **Automation & Quality**: Pre-configured `pre-commit` hooks, `Black` formatter, and `Isort`.
-- **ERD Generation**: Automated Entity Relationship Diagram creation script (`erd.sh`).
-- **GitHub Integration**: Automatic repo initialization and first push.
+**ocd** gives you all of this with one command.
 
----
+## 📦 Installation
 
-## 🛠️ Quick Start
+```bash
+pip install one-click-drf
+```
 
-1. **Download the script**:
-   Place `init.sh` in your project root.
+## 🚀 Usage
 
-2. **Give execution permission**:
-   ```bash
-   chmod +x init.sh
-   ```
+### Initialize a new project
 
-3. **Run the script**:
-   ```bash
-   ./init.sh
-   ```
+```bash
+ocd init myproject
+```
+This creates a new folder `myproject` with a production-ready structure.
 
-> **Note**: During the first run, you might see `black` or `isort` show a **Failed** status. This is **good**! It means the tools successfully identified and auto-formatted your new code to match production standards. Subsequent commits will show **Passed**.
+### Initialize in current directory
 
----
+```bash
+ocd init .
+```
 
-## ⚙️ Customization (Ctrl + F)
+### Enable Optional Features
 
-After running the script, you can easily find and change specific settings by searching for the following keywords or categories:
+You can mix and match flags:
 
-- **APP NAMES**: During run, you'll be prompted for app names (e.g., `users admin`).
-- **SHEMANTO**: Search for this to find author credits and links.
-- **DOCKER HUB**: Look in `.github/workflows/pipeline.yml` to change the `DOCKER_REPO`.
-- **CODE STYLE**: Configuration is in `pyproject.toml` and `.pre-commit-config.yaml`.
-- **AWS CONFIG**: Look in `infra/terraform/` to adjust regions, instance types, and bucket names.
-- **DOMAIN/SSL**: Look in `infra/ansible/playbook.yml` to change `website_domain` and `certbot_email`.
-- **DATABASE**: Search for `DATABASE_URL` in `.env`.
-- **SUPERUSER**: Default is `admin@gmail.com` with `admin123`.
+```bash
+ocd init myproject --docker --ci-cd
+```
 
----
+Or enable everything:
 
-## 📦 Requirements
+```bash
+ocd init myproject --all
+```
 
-- Linux OS (Ubuntu recommended)
-- `curl` (to install `uv`)
-- `git`
+## 🚩 CLI Flags
 
----
-*Created by [Shemanto Sharkar](https://github.com/shemanto27)*
+| Flag | Description |
+|------|-------------|
+| `--docker` | Adds `Dockerfile` and `docker-compose.yml` |
+| `--ci-cd` | Adds GitHub Actions workflow for testing & linting |
+| `--iac` | Adds Terraform skeleton for AWS |
+| `--observability` | Adds Prometheus configuration |
+| `--all` | Enables all above features |
+
+## 📂 Project Structure
+
+We follow a clean, modular structure:
+
+```
+project-root/
+├── core/                 # Project configuration
+│   ├── settings/         # Split settings
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   ├── prod.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── apps/                 # Your Django apps live here
+├── requirements/         # Dependencies split
+│   ├── base.txt
+│   ├── dev.txt
+│   └── prod.txt
+├── manage.py
+└── .env                  # Environment variables
+```
+
+**Why `core/`?** 
+Keeping settings and configuration separate from your business logic (`apps/`) keeps the root directory clean and makes the project easier to navigate.
+
+## 🤝 Contribution
+
+We welcome contributions!
+1. Fork the repo.
+2. Clone it clearly.
+3. Install dependencies: `uv sync` or `pip install -e .`
+4. Add a new generator in `one_click_drf/generators.py` or new templates in `one_click_drf/templates/`.
+
+## ⚙️ Configuration
+
+On first run, `ocd` will ask for your GitHub and DockerHub usernames. These are saved in `~/.config/one-click-drf/config.toml` so you don't have to type them again.

@@ -1,0 +1,44 @@
+# AWS Key Pair
+resource "aws_key_pair" "terraform_key" {
+  key_name   = "terraform-key-{{ project_name }}"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
+
+# EC2 instance
+resource "aws_instance" "ec2_server_1" {
+  ami                    = var.ami
+  instance_type          = var.instance_type
+  key_name               = aws_key_pair.terraform_key.key_name
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+
+  tags = {
+    Name = "{{ project_name }}"
+  }
+}
+
+# Elastic IP
+resource "aws_eip" "static_ip" {
+  instance = aws_instance.ec2_server_1.id
+}
+
+
+# S3 bucket
+resource "aws_s3_bucket" "media" {
+  bucket = var.bucket_name
+}
+
+
+# RDS Postgres
+resource "aws_db_instance" "postgres" {
+  engine              = "postgres"
+  instance_class      = "db.t3.micro"
+  allocated_storage   = 20
+  db_name             = "{{ project_name }}db"
+  username            = var.db_username
+  password            = var.db_password
+  skip_final_snapshot = true
+
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id] 
+  publicly_accessible    = false                          
+}

@@ -1,0 +1,32 @@
+#!/bin/sh
+set -e
+
+echo "Starting Django entrypoint script..."
+
+# 1. Wait for database (only if DATABASE_URL is set)
+if [ -n "$DATABASE_URL" ]; then
+  echo "Waiting for database..."
+  sleep 3
+fi
+
+# 2. Apply database migrations
+echo "Running migrations..."
+python manage.py migrate --noinput
+
+# 3. Collect static files
+echo "Collecting static files..."
+python manage.py collectstatic --noinput --clear
+
+# 4. Create superuser only if credentials are provided
+if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+  echo "Creating superuser..."
+  python manage.py createsuperuser --noinput || echo "Superuser already exists or creation failed"
+else
+  echo "Skipping superuser creation - credentials not provided"
+fi
+
+echo "Entrypoint script completed successfully!"
+
+# 5. Execute the CMD from Dockerfile
+echo "Starting Gunicorn..."
+exec "$@"

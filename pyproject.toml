@@ -1,0 +1,21 @@
+[project]
+name = "one-click-drf"
+version = "0.1.0"
+description = "One command to generate a production-ready Django REST backend"
+readme = "README.md"
+authors = [
+    { name = "Shemanto Sharkar", email = "shemantosharkarofficial@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "jinja2>=3.1.6",
+    "rich>=14.3.2",
+    "typer>=0.21.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.16,<0.10.0"]
+build-backend = "uv_build"
+
+[project.scripts]
+ocd = "one_click_drf.cli:app"

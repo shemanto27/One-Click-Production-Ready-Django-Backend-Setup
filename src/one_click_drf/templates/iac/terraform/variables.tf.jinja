@@ -1,0 +1,26 @@
+variable "instance_type" {
+  description = "EC2 instance type"
+  default     = "t3.micro"
+}
+
+variable "ami" {
+  description = "AMI"
+  default     = "ami-061fe7df6ad657197"
+}
+
+variable "bucket_name" {
+  description = "S3 bucket name"
+}
+
+variable "ec2_name" {
+  description = "Name tag for EC2 instance"
+}
+
+variable "db_username" {
+  description = "RDS Postgres username"
+}
+
+variable "db_password" {
+  description = "RDS Postgres password"
+  sensitive   = true
+}

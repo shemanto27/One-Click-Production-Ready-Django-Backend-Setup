@@ -1,0 +1,90 @@
+- hosts: webservers
+  become: yes
+
+  vars:
+    backend_path: /home/ubuntu/backend
+    website_domain: example.com           
+    certbot_email: your-email@example.com 
+    env_file_src: ../../.env
+    docker_compose_src: ../../docker-compose.prod.yml
+    nginx_conf_src: ../../nginx.backend.conf
+
+  tasks:
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install dependencies
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    - name: Create backend folder
+      file:
+        path: "{{ backend_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy .env file from local to EC2
+      copy:
+        src: "{{ env_file_src }}"
+        dest: "{{ backend_path }}/.env"
+        mode: "0600"
+
+    - name: Copy docker-compose.prod.yml to EC2
+      copy:
+        src: "{{ docker_compose_src }}"
+        dest: "{{ backend_path }}/docker-compose.yml"
+        mode: "0644"
+      notify:
+        - restart docker-compose
+
+    - name: Copy Nginx config to EC2
+      copy:
+        src: "{{ nginx_conf_src }}"
+        dest: /etc/nginx/sites-available/backend
+        mode: "0644"
+      notify:
+        - reload nginx
+
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/backend
+        dest: /etc/nginx/sites-enabled/backend
+        state: link
+      notify:
+        - reload nginx
+
+    - name: Remove default Nginx site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify:
+        - reload nginx
+
+    - name: Obtain SSL certificate via Certbot
+      command: >
+        certbot --nginx
+        -d {{ website_domain }}
+        --non-interactive
+        --agree-tos
+        -m {{ certbot_email }}
+      args:
+        creates: /etc/letsencrypt/live/{{ website_domain }}/fullchain.pem
+
+  handlers:
+    - name: reload nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: restart docker-compose
+      command: docker-compose up -d
+      args:
+        chdir: "{{ backend_path }}"
