@@ -518,7 +518,7 @@ ipython_config.py
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
 #   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   having no cross-platform support, pipenv may install dependencies that dont work, or not
 #   install all needed dependencies.
 #Pipfile.lock
 
@@ -747,7 +747,7 @@ COPY pyproject.toml uv.lock ./
 # Install dependencies
 RUN uv sync --frozen
 
-# adding venv's bin to PATH
+# adding venvs bin to PATH
 ENV PATH="/app/.venv/bin:\$PATH"
 
 # Copy the rest of the application code
@@ -1232,7 +1232,7 @@ EOF
 if [ -d ".git" ] || [ -f ".git" ]; then
     uv run pre-commit install
 else
-    # If git isn't initialized yet, we'll initialize it now to make pre-commit work
+    # If git isnt initialized yet, we will initialize it now to make pre-commit work
     git init
     uv run pre-commit install
 fi
@@ -1251,7 +1251,7 @@ if [ -n "$GITHUB_URL" ]; then
         REPO_PATH=${GITHUB_URL#https://github.com/}
         # Remove trailing slash if exists
         REPO_PATH=${REPO_PATH%/}
-        # Ensure .git suffix isn't doubled
+        # Ensure .git suffix isnt doubled
         REPO_PATH=${REPO_PATH%.git}
         SSH_URL="git@github.com:${REPO_PATH}.git"
     else
@@ -1280,15 +1280,15 @@ else
     echo 'GitHub setup skipped.'
 fi
 
-echo '--------------------------------------------'
+echo '-------------------🎉🎉🎉-------------------'
 echo ''
 echo 'This setup is made by Shemanto Sharkar'
-echo 'Github: https://github.com/shemanto27'
-echo 'LinkedIn: https://linkedin.com/in/shemanto'
+echo '🚩 Github: https://github.com/shemanto27'
+echo '🚩 LinkedIn: https://linkedin.com/in/shemanto'
 echo ''
-echo 'Note: If pre-commit hooks showed Failed during the first run, it means they'
+echo 'Note: If pre-commit hooks showed "Failed" during the first run, it means they'
 echo 'successfully reformatted your files to meet production standards.'
 echo ''
-echo 'Initialization complete. Your project is production-ready.'
-echo 'This includes AWS Deployment, CI/CD, Docker, Sentry, ERD, and Formatting.'
-echo '--------------------------------------------'
+echo '🚀 Initialization complete! Your project is production-ready.'
+echo '✅ This includes AWS, CI/CD, Docker, Sentry, ERD, and Formatting.'
+echo '-------------------🎉🎉🎉-------------------'
