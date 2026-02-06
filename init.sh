@@ -1258,32 +1258,37 @@ if [ -n "$GITHUB_URL" ]; then
         SSH_URL=$GITHUB_URL
     fi
 
-    echo "Initializing Git and pushing to $SSH_URL..."
+    echo 'Initializing Git repository and adding remote origin...'
     
     # Initialize and push
     git init
-    if [ ! -f "README.md" ]; then
-        echo "# Project Created with One-Click Production-Ready Django Setup" > README.md
+    if [ ! -f 'README.md' ]; then
+        echo '# Project Created with One-Click Production-Ready Django Setup' > README.md
     fi
     git add .
-    git commit -m "first commit"
+    
+    # This commit might "fail" because pre-commit hooks will reformat files
+    # We ignore the failure and proceed
+    git commit -m 'initial project setup' || echo 'Note: Initial commit triggered auto-formatting'
+    
     git branch -M main
     git remote add origin "$SSH_URL"
     # git push -u origin main
     
-    echo "Local Git initialized and remote 'origin' added. You can now push your code."
+    echo 'Local Git initialized and remote origin added. You can now push your code.'
 else
-    echo "GitHub setup skipped."
+    echo 'GitHub setup skipped.'
 fi
 
-echo "-------------------🎉🎉🎉-------------------"
-echo ""
-echo "This setup is made by Shemanto Sharkar"
-echo "🚩 Github: https://github.com/shemanto27"
-echo "🚩 LinkedIn: https://linkedin.com/in/shemanto"
-echo ""
-echo 'Note: If pre-commit hooks showed "Failed" during the first run, it means they'
-echo "successfully reformatted your files to meet production standards."
-echo ""
-echo 'Initialization complete! Your project is production-ready. This is for Django Backend project deployable in AWS with CI/CD pipeline (GitHub Actions), Sentry Error tracking, Docker, Ansible, Terraform, ERD generation, Pre-commit code formatting, and Github setup'
-echo "-------------------🎉🎉🎉-------------------"
+echo '--------------------------------------------'
+echo ''
+echo 'This setup is made by Shemanto Sharkar'
+echo 'Github: https://github.com/shemanto27'
+echo 'LinkedIn: https://linkedin.com/in/shemanto'
+echo ''
+echo 'Note: If pre-commit hooks showed Failed during the first run, it means they'
+echo 'successfully reformatted your files to meet production standards.'
+echo ''
+echo 'Initialization complete. Your project is production-ready.'
+echo 'This includes AWS Deployment, CI/CD, Docker, Sentry, ERD, and Formatting.'
+echo '--------------------------------------------'
