@@ -3,6 +3,8 @@
 
 # One Click DRF (OCD) 🚀
 
+> **বাংলায় README ফাইলটি পড়ে দেখুন [এখানে (README.bn.md)](./README.bn.md)**
+
 **One Click DRF** is a powerful CLI tool designed to bootstrap **production-ready** Django REST Framework projects in seconds.
 
 [![PyPI version](https://img.shields.io/pypi/v/one-click-drf)](https://pypi.org/project/one-click-drf/)
