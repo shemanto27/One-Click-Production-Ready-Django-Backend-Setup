@@ -727,12 +727,12 @@ media/
 EOF
 
 # Dockerfile
-cat <<EOF > Dockerfile
+cat <<'DOCKERFILE_EOF' > Dockerfile
 # Base image
 FROM python:3.12-slim-bullseye
 
 # Environment variables
-ENV PYTHONDONTWRITEBYTECODE=1  
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install uv
@@ -747,8 +747,8 @@ COPY pyproject.toml uv.lock ./
 # Install dependencies
 RUN uv sync --frozen
 
-# adding venvs bin to PATH
-ENV PATH="/app/.venv/bin:\$PATH"
+# adding venv's bin to PATH
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy the rest of the application code
 COPY . .
@@ -765,10 +765,10 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Start server using Python module (most reliable with uv)
 CMD ["python", "-m", "gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120"]
-EOF
+DOCKERFILE_EOF
 
 # docker-compose.dev.yml
-cat <<EOF > docker-compose.dev.yml
+cat <<COMPOSE_DEV_EOF > docker-compose.dev.yml
 version: "3.9"
 
 services:
@@ -783,10 +783,10 @@ services:
     env_file:
       - .env
     restart: always
-EOF
+COMPOSE_DEV_EOF
 
 # docker-compose.prod.yml
-cat <<EOF > docker-compose.prod.yml
+cat <<COMPOSE_PROD_EOF > docker-compose.prod.yml
 version: "3.9"
 
 services:
@@ -798,7 +798,7 @@ services:
     env_file:
       - .env
     restart: always
-EOF
+COMPOSE_PROD_EOF
 
 # entrypoint.sh
 cat <<'EOF' > entrypoint.sh
@@ -844,7 +844,7 @@ echo "Docker files created successfully!"
 echo "Creating CI/CD files for GitHub Actions..."
 mkdir -p .github/workflows
 
-cat <<EOF > .github/workflows/pipeline.yml
+cat <<GITHUB_ACTIONS_EOF > .github/workflows/pipeline.yml
 # name: CI/CD Pipeline
 # 
 # on:
@@ -905,7 +905,7 @@ cat <<EOF > .github/workflows/pipeline.yml
 #             docker compose -f docker-compose.prod.yml pull
 #             docker compose -f docker-compose.prod.yml up -d --force-recreate --remove-orphans
 #             sudo systemctl restart nginx
-EOF
+GITHUB_ACTIONS_EOF
 echo "CI/CD files created (commented out by default)."
 
 # --------------------- 12. IaC setup ---------------------
@@ -913,13 +913,13 @@ echo "Creating Infrastructure as Code (IaC) files..."
 mkdir -p infra/ansible infra/terraform
 
 # Ansible hosts.ini
-cat <<EOF > infra/ansible/hosts.ini
+cat <<'ANSIBLE_HOSTS_EOF' > infra/ansible/hosts.ini
 [webservers]
 ec2-1 ansible_host=YOUR_EC2_PUBLIC_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/mykey.pem
-EOF
+ANSIBLE_HOSTS_EOF
 
 # Ansible playbook.yml
-cat <<EOF > infra/ansible/playbook.yml
+cat <<'ANSIBLE_PLAYBOOK_EOF' > infra/ansible/playbook.yml
 - hosts: webservers
   become: yes
 
@@ -1010,10 +1010,10 @@ cat <<EOF > infra/ansible/playbook.yml
       command: docker-compose up -d
       args:
         chdir: "{{ backend_path }}"
-EOF
+ANSIBLE_PLAYBOOK_EOF
 
 # Terraform main.tf
-cat <<EOF > infra/terraform/main.tf
+cat <<TERRAFORM_MAIN_EOF > infra/terraform/main.tf
 # AWS Key Pair
 resource "aws_key_pair" "terraform_key" {
   key_name   = "terraform-key-${PROJECT_NAME}"
@@ -1058,10 +1058,10 @@ resource "aws_db_instance" "postgres" {
   vpc_security_group_ids = [aws_security_group.ec2_sg.id] 
   publicly_accessible    = false                          
 }
-EOF
+TERRAFORM_MAIN_EOF
 
 # Terraform outputs.tf
-cat <<'EOF' > infra/terraform/outputs.tf
+cat <<'TERRAFORM_OUTPUTS_EOF' > infra/terraform/outputs.tf
 output "ec2_public_ip" {
   value = aws_eip.static_ip.public_ip
 }
@@ -1085,18 +1085,18 @@ output "rds_password" {
   value       = aws_db_instance.postgres.password
   sensitive   = true
 }
-EOF
+TERRAFORM_OUTPUTS_EOF
 
 # Terraform provider.tf
-cat <<EOF > infra/terraform/provider.tf
+cat <<'TERRAFORM_PROVIDER_EOF' > infra/terraform/provider.tf
 provider "aws" {
   region  = "us-east-1"
   profile = "terraform-user-1"
 }
-EOF
+TERRAFORM_PROVIDER_EOF
 
 # Terraform security_groups.tf
-cat <<'EOF' > infra/terraform/security_groups.tf
+cat <<'TERRAFORM_SG_EOF' > infra/terraform/security_groups.tf
 resource "aws_security_group" "ec2_sg" {
   name        = "ec2-allow-all-testing"
   description = "Allow all inbound traffic for testing only"
@@ -1145,10 +1145,10 @@ resource "aws_security_group" "ec2_sg" {
     Name = "ec2-allow-all-testing"
   }
 }
-EOF
+TERRAFORM_SG_EOF
 
 # Terraform variables.tf
-cat <<'EOF' > infra/terraform/variables.tf
+cat <<'TERRAFORM_VARS_EOF' > infra/terraform/variables.tf
 variable "instance_type" {
   description = "EC2 instance type"
   default     = "t3.micro"
@@ -1175,71 +1175,12 @@ variable "db_password" {
   description = "RDS Postgres password"
   sensitive   = true
 }
-EOF
+TERRAFORM_VARS_EOF
 
 echo "IaC files created successfully!"
 
-# --------------------- 13. Code Formatting Setup ---------------------
-echo "Setting up code formatting tools..."
 
-# .pre-commit-config.yaml
-cat <<EOF > .pre-commit-config.yaml
-repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-      - id: check-json
-      - id: check-toml
-      - id: check-merge-conflict
-      - id: debug-statements
-
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-      - id: black
-        language_version: python3
-        args: ['--line-length=120']
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ['--profile', 'black', '--line-length=120']
-EOF
-
-# Append black and isort configuration to pyproject.toml
-cat <<EOF >> pyproject.toml
-
-[tool.black]
-line-length = 120
-target-version = ['py312']
-
-[tool.isort]
-profile = "black"
-line_length = 120
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-EOF
-
-# Install pre-commit hooks using uv to ensure it's linked to the project's venv
-if [ -d ".git" ] || [ -f ".git" ]; then
-    uv run pre-commit install
-else
-    # If git isnt initialized yet, we will initialize it now to make pre-commit work
-    git init
-    uv run pre-commit install
-fi
-
-echo "Code formatting setup complete!"
-
-# --------------------- 14. Github setup ---------------------
+# --------------------- 13. Github setup ---------------------
 
 echo "------------------------------------------------"
 read -p "Enter GitHub Repository URL (or press Enter to skip): " GITHUB_URL
@@ -1247,7 +1188,7 @@ echo "------------------------------------------------"
 
 if [ -n "$GITHUB_URL" ]; then
     # Convert HTTPS URL to SSH if it matches standard github format
-    if [[ $GITHUB_URL == https://github.com/* ]]; then
+    if echo "$GITHUB_URL" | grep -q "https://github.com/"; then
         REPO_PATH=${GITHUB_URL#https://github.com/}
         # Remove trailing slash if exists
         REPO_PATH=${REPO_PATH%/}
@@ -1258,37 +1199,32 @@ if [ -n "$GITHUB_URL" ]; then
         SSH_URL=$GITHUB_URL
     fi
 
-    echo 'Initializing Git repository and adding remote origin...'
+    echo "Initializing Git repository and pushing to GitHub..."
     
-    # Initialize and push
+    # Initialize and commit
     git init
-    if [ ! -f 'README.md' ]; then
-        echo '# Project Created with One-Click Production-Ready Django Setup' > README.md
+    if [ ! -f "README.md" ]; then
+        echo "# Project Created with One-Click Production-Ready Django Setup" > README.md
     fi
     git add .
-    
-    # This commit might "fail" because pre-commit hooks will reformat files
-    # We ignore the failure and proceed
-    git commit -m 'initial project setup' || echo 'Note: Initial commit triggered auto-formatting'
+    git commit -m "initial project setup"
     
     git branch -M main
     git remote add origin "$SSH_URL"
-    # git push -u origin main
     
-    echo 'Local Git initialized and remote origin added. You can now push your code.'
+    # Push to GitHub
+    echo "Pushing to $SSH_URL..."
+    git push -u origin main
+    
+    echo "Code pushed to GitHub successfully!"
 else
-    echo 'GitHub setup skipped.'
+    echo "GitHub setup skipped."
 fi
 
-echo '-------------------🎉🎉🎉-------------------'
-echo ''
-echo 'This setup is made by Shemanto Sharkar'
-echo '🚩 Github: https://github.com/shemanto27'
-echo '🚩 LinkedIn: https://linkedin.com/in/shemanto'
-echo ''
-echo 'Note: If pre-commit hooks showed "Failed" during the first run, it means they'
-echo 'successfully reformatted your files to meet production standards.'
-echo ''
-echo '🚀 Initialization complete! Your project is production-ready.'
-echo '✅ This includes AWS, CI/CD, Docker, Sentry, ERD, and Formatting.'
-echo '-------------------🎉🎉🎉-------------------'
+printf "\n%s\n\n" "-------------------🎉🎉🎉-------------------"
+printf "This setup is made by Shemanto Sharkar\n"
+printf "🚩 Github: https://github.com/shemanto27\n"
+printf "🚩 LinkedIn: https://linkedin.com/in/shemanto\n\n"
+printf "🚀 Initialization complete! Your project is production-ready.\n"
+printf "✅ This includes AWS, CI/CD, Docker, Sentry, ERD, and Branding.\n"
+printf "%s\n" "-------------------🎉🎉🎉-------------------"
