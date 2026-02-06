@@ -223,9 +223,11 @@ DEBUG = config('DEBUG', cast=bool, default=True)
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', cast=str, default='test-access-key')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', cast=str, default='test-secret-key')
 AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', cast=str, default='test-bucket')
-AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN', cast=str, default='test-bucket.s3.amazonaws.com')
+AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN', cast=str, default=None)
 AWS_S3_FILE_OVERWRITE = config('AWS_S3_FILE_OVERWRITE', cast=bool, default=False)
 AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', cast=str, default='us-east-1')
+AWS_DEFAULT_ACL = config('AWS_DEFAULT_ACL', cast=str, default=None)
+AWS_S3_VERITY = config('AWS_S3_VERITY', cast=bool, default=True)
 
 
 # -------------------------------
@@ -248,10 +250,10 @@ if not DEBUG:
 # Security & Hosts
 # -------------------------------
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True 
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000,http://localhost:3001').split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 CORS_ALLOW_HEADERS = [
@@ -259,10 +261,7 @@ CORS_ALLOW_HEADERS = [
     'origin', 'user-agent', 'x-csrftoken', 'x-requested-with',
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-]
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000,http://127.0.0.1:8000').split(',')
 
 # -------------------------------
 # Application definition
@@ -328,11 +327,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# -------------------------------
-# Database
-# -------------------------------
-DATABASE_URL = config("DATABASE_URL", default="postgresql://user:password@localhost:5432/dbname")
-tmpPostgres = urlparse(DATABASE_URL)
+DATABASE_URL = config("DATABASE_URL", default=None)
 
 if DEBUG:
     DATABASES = {
@@ -341,7 +336,8 @@ if DEBUG:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-else:
+elif DATABASE_URL:
+    tmpPostgres = urlparse(DATABASE_URL)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -350,6 +346,17 @@ else:
             'PASSWORD': tmpPostgres.password,
             'HOST': tmpPostgres.hostname,
             'PORT': tmpPostgres.port,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': config('DB_ENGINE', default='django.db.backends.postgresql'),
+            'NAME': config('DB_NAME', default='test-db'),
+            'USER': config('DB_USER', default='test-user'),
+            'PASSWORD': config('DB_PASSWORD', default='test-password'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
         }
     }
 
@@ -412,9 +419,9 @@ python manage.py makemigrations
 python manage.py migrate
 
 echo "Creating superuser..."
-export DJANGO_SUPERUSER_USERNAME=admin
-export DJANGO_SUPERUSER_EMAIL=admin@gmail.com
-export DJANGO_SUPERUSER_PASSWORD=admin123
+export DJANGO_SUPERUSER_USERNAME=$(grep DJANGO_SUPERUSER_USERNAME .env | cut -d '=' -f2)
+export DJANGO_SUPERUSER_EMAIL=$(grep DJANGO_SUPERUSER_EMAIL .env | cut -d '=' -f2)
+export DJANGO_SUPERUSER_PASSWORD=$(grep DJANGO_SUPERUSER_PASSWORD .env | cut -d '=' -f2)
 python manage.py createsuperuser --noinput || echo "Superuser already exists."
 
 # --------------------- 8. Add gitignore ---------------------
@@ -655,48 +662,68 @@ PROJECT_NAME=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
 
 # .dockerignore
 cat <<'EOF' > .dockerignore
-# Environment files
+# Git
+.git
+.gitignore
+.github
+
+# Python / Virtual Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+.nox/
+.tox/
+
+# Environment / Secrets
 .env
-.env.local
-.env.development
-.env.production
-.backend.env
-.frontend.env
+.env.*
+*.pem
+*aws-credentials/
 
-# Docker
+# Docker / Infrastructure
 .dockerignore
-docker-compose.override.yml
-.venv
-__pycache__
+docker-compose*.yml
+Dockerfile
+infra/
+*.tf
+*.tfstate*
+*.tfvars
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
+# Shell Scripts & Diagrams
+*.sh
+erd.jpg
+erd.png
+erd.pdf
+*.jpg
+*.jpeg
+*.png
+*.svg
 
-# OS / Editor
+# OS / IDE
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 *.swp
 *.swo
-*.bak
 
-# Coverage / Testing
-.coverage
-htmlcov/
-.tox/
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.cache
-pytest_cache/
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3
 
-# Git
-.gitignore
+# Static / Media (Ignored if using S3, or to prevent bloat from local tests)
+staticfiles/
+media/
+# static/  <-- DO NOT ignore if your source assets (CSS/JS) are here
 EOF
 
 # Dockerfile
