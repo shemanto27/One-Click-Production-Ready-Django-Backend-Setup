@@ -2,12 +2,12 @@
   become: yes
 
   vars:
-    backend_path: /home/ubuntu/backend
-    website_domain: example.com           
-    certbot_email: your-email@example.com 
-    env_file_src: ../../.env
+    project_path: /home/ubuntu/{{ project_name }}
+    website_domain: {{ website_domain|default('example.com') }}           
+    certbot_email: {{ certbot_email|default('your-email@example.com') }} 
+    env_file_src: ../../backend/.env
     docker_compose_src: ../../docker-compose.prod.yml
-    nginx_conf_src: ../../nginx.backend.conf
+    nginx_conf_src: ../../nginx/backend.conf
 
   tasks:
     - name: Update apt packages
@@ -19,28 +19,34 @@
       apt:
         name:
           - docker.io
-          - docker-compose
+          - docker-compose-plugin
           - nginx
           - certbot
           - python3-certbot-nginx
         state: present
 
-    - name: Create backend folder
+    - name: Create project folder
       file:
-        path: "{{ backend_path }}"
+        path: "{{ project_path }}"
         state: directory
         mode: "0755"
 
-    - name: Copy .env file from local to EC2
+    - name: Create backend folder
+      file:
+        path: "{{ project_path }}/backend"
+        state: directory
+        mode: "0755"
+
+    - name: Copy .env file
       copy:
         src: "{{ env_file_src }}"
-        dest: "{{ backend_path }}/.env"
+        dest: "{{ project_path }}/backend/.env"
         mode: "0600"
 
-    - name: Copy docker-compose.prod.yml to EC2
+    - name: Copy docker-compose.prod.yml
       copy:
         src: "{{ docker_compose_src }}"
-        dest: "{{ backend_path }}/docker-compose.yml"
+        dest: "{{ project_path }}/docker-compose.prod.yml"
         mode: "0644"
       notify:
         - restart docker-compose
@@ -85,6 +91,6 @@
         state: reloaded
 
     - name: restart docker-compose
-      command: docker-compose up -d
+      command: docker compose -f docker-compose.prod.yml up -d
       args:
-        chdir: "{{ backend_path }}"
+        chdir: "{{ project_path }}"

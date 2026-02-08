@@ -1,0 +1,48 @@
+# Development & Deployment Guide 🚀
+
+Welcome to your new production-ready Django project! Follow this guide to go from development to live production.
+
+## 🛠 Step 1: Local Development
+1. **Local Python**: 
+   ```bash
+   cd backend
+   uv sync
+   source .venv/bin/activate
+   python manage.py runserver
+   ```
+2. **Docker Dev**:
+   ```bash
+   ./docker-helper.sh up
+   ```
+
+## 🏗 Step 2: Infrastructure Provisioning (AWS)
+Before deploying, you need to create the servers.
+1. Go to `infra/terraform/`.
+2. Update `variables.tf` with your specific AWS details.
+3. Run the helper:
+   ```bash
+   chmod +x create_infra.sh
+   ./create_infra.sh
+   ```
+
+## ⚙️ Step 3: Server Configuration (Ansible)
+Once the server is up, configure it with Docker, Nginx, and SSL.
+1. Go to `infra/ansible/`.
+2. Update `hosts.ini` with your new EC2 IP address.
+3. Run the helper:
+   ```bash
+   chmod +x configure_server.sh
+   ./configure_server.sh
+   ```
+
+## 🚀 Step 4: Automatic Deployment (CI/CD)
+To enable automatic deployment on every git push:
+1. Open `.github/workflows/pipeline.yml`.
+2. **Uncomment** the contents of the file.
+3. Set your GitHub Secrets:
+   - `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
+   - `EC2_HOST`, `EC2_USER`, `EC2_SSH_PRIVATE_KEY`
+4. Push to main: `git push origin main`.
+
+---
+**Happy Coding!**

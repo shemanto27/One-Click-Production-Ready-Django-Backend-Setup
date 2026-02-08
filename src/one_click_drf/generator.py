@@ -187,28 +187,28 @@ def setup_git(project_root: Path, github_url: str):
 
 
 def generate_django_core(project_root: Path, context: dict):
-    """Generates the core Django project structure."""
+    """Generates the core Django project structure in the backend/ folder."""
     
-    setup_uv(project_root)
+    backend_root = project_root / "backend"
+    backend_root.mkdir(exist_ok=True)
+    
+    setup_uv(backend_root)
 
     # Define mapping of template -> destination
     files_map = {
-        # Using single settings.py now, per user request
-        "django/settings.py.jinja": project_root / "core" / "settings.py", 
-        "django/__init__.py.jinja": project_root / "core" / "__init__.py",
-        "django/urls.py.jinja": project_root / "core" / "urls.py",
-        "django/wsgi.py.jinja": project_root / "core" / "wsgi.py",
-        "django/asgi.py.jinja": project_root / "core" / "asgi.py",
-        "django/manage.py.jinja": project_root / "manage.py",
-        "env/.env.jinja": project_root / ".env",
-        "env/.gitignore.jinja": project_root / ".gitignore",
-        "django/erd.sh.jinja": project_root / "erd.sh",
-        "django/__init__.py.jinja": project_root / "apps" / "__init__.py", # Ensure apps folder is a package too? Optional but good.
-        
-        # Legacy requirements files
-        "django/requirements/base.txt.jinja": project_root / "requirements" / "base.txt",
-        "django/requirements/dev.txt.jinja": project_root / "requirements" / "dev.txt",
-        "django/requirements/prod.txt.jinja": project_root / "requirements" / "prod.txt",
+        "django/settings.py.jinja": backend_root / "core" / "settings.py", 
+        "django/__init__.py.jinja": backend_root / "core" / "__init__.py",
+        "django/urls.py.jinja": backend_root / "core" / "urls.py",
+        "django/wsgi.py.jinja": backend_root / "core" / "wsgi.py",
+        "django/asgi.py.jinja": backend_root / "core" / "asgi.py",
+        "django/manage.py.jinja": backend_root / "manage.py",
+        "env/.env.jinja": backend_root / ".env",
+        "env/.gitignore.jinja": backend_root / ".gitignore",
+        "django/erd.sh.jinja": backend_root / "erd.sh",
+        "django/__init__.py.jinja": backend_root / "apps" / "__init__.py",
+        "django/nginx.backend.conf.jinja": project_root / "nginx" / "backend.conf",
+        "env/.python-version.jinja": backend_root / ".python-version",
+        "django/DEVELOPMENT.md.jinja": project_root / "DEVELOPMENT.md",
     }
     
     context.setdefault("secret_key", secrets.token_urlsafe(50))
@@ -216,10 +216,10 @@ def generate_django_core(project_root: Path, context: dict):
     for tmpl, dest in files_map.items():
         render_to_file(tmpl, context, dest)
     
-    (project_root / "manage.py").chmod(0o755)
-    (project_root / "erd.sh").chmod(0o755)
+    (backend_root / "manage.py").chmod(0o755)
+    (backend_root / "erd.sh").chmod(0o755)
 
-    apps_dir = project_root / "apps"
+    apps_dir = backend_root / "apps"
     apps_dir.mkdir(exist_ok=True)
     
     for app in context.get("apps", []):
@@ -249,22 +249,27 @@ urlpatterns = [
         (app_path / "serializers.py").write_text("from rest_framework import serializers\n\n# Create your serializers here.")
         (app_path / "admin.py").write_text("from django.contrib import admin\n\n# Register your models here.")
         
-    # Run DB setup (migrations + superuser) AFTER all generation
-    # Needs to run inside uv context
-    setup_django_db(project_root)
+    # Run DB setup (migrations + superuser) in backend folder
+    setup_django_db(backend_root)
 
     setup_git(project_root, context.get("github_repository_url", ""))
 
 
 def generate_docker(project_root: Path, context: dict):
-    render_to_file("docker/Dockerfile.jinja", context, project_root / "Dockerfile")
-    render_to_file("docker/.dockerignore.jinja", context, project_root / ".dockerignore")
-    render_to_file("docker/entrypoint.sh.jinja", context, project_root / "entrypoint.sh")
+    """Generates Docker related files with root orchestration and localized building."""
+    backend_root = project_root / "backend"
+    
+    # Builds should be defined from the backend context but orchestrated from root
+    render_to_file("docker/Dockerfile.jinja", context, backend_root / "Dockerfile")
+    render_to_file("docker/.dockerignore.jinja", context, backend_root / ".dockerignore")
+    render_to_file("docker/entrypoint.sh.jinja", context, backend_root / "entrypoint.sh")
+    
     render_to_file("docker/docker-compose.dev.yml.jinja", context, project_root / "docker-compose.dev.yml")
     render_to_file("docker/docker-compose.prod.yml.jinja", context, project_root / "docker-compose.prod.yml")
-    render_to_file("docker/docker-compose.dev.yml.jinja", context, project_root / "docker-compose.yml")
+    render_to_file("docker/docker-helper.sh.jinja", context, project_root / "docker-helper.sh")
     
-    (project_root / "entrypoint.sh").chmod(0o755)
+    (backend_root / "entrypoint.sh").chmod(0o755)
+    (project_root / "docker-helper.sh").chmod(0o755)
 
 def generate_cicd(project_root: Path, context: dict):
     render_to_file("github/pipeline.yml.jinja", context, project_root / ".github" / "workflows" / "pipeline.yml")
@@ -275,9 +280,21 @@ def generate_iac(project_root: Path, context: dict):
     render_to_file("iac/terraform/provider.tf.jinja", context, project_root / "infra" / "terraform" / "provider.tf")
     render_to_file("iac/terraform/security_groups.tf.jinja", context, project_root / "infra" / "terraform" / "security_groups.tf")
     render_to_file("iac/terraform/variables.tf.jinja", context, project_root / "infra" / "terraform" / "variables.tf")
+    render_to_file("iac/terraform/create_infra.sh.jinja", context, project_root / "infra" / "terraform" / "create_infra.sh")
+    render_to_file("iac/terraform/destroy_infra.sh.jinja", context, project_root / "infra" / "terraform" / "destroy_infra.sh")
+    render_to_file("iac/terraform/.gitignore.jinja", context, project_root / "infra" / "terraform" / ".gitignore")
 
     render_to_file("iac/ansible/hosts.ini.jinja", context, project_root / "infra" / "ansible" / "hosts.ini")
     render_to_file("iac/ansible/playbook.yml.jinja", context, project_root / "infra" / "ansible" / "playbook.yml")
+    render_to_file("iac/ansible/configure_server.sh.jinja", context, project_root / "infra" / "ansible" / "configure_server.sh")
+    render_to_file("iac/ansible/.gitignore.jinja", context, project_root / "infra" / "ansible" / ".gitignore")
+
+    (project_root / "infra" / "terraform" / "create_infra.sh").chmod(0o755)
+    (project_root / "infra" / "terraform" / "destroy_infra.sh").chmod(0o755)
+    (project_root / "infra" / "ansible" / "configure_server.sh").chmod(0o755)
 
 def generate_observability(project_root: Path, context: dict):
-    render_to_file("observability/prometheus.yml.jinja", context, project_root / "prometheus.yml")
+    render_to_file("observability/prometheus.yml.jinja", context, project_root / "monitoring" / "prometheus.yml")
+
+def generate_observability(project_root: Path, context: dict):
+    render_to_file("observability/prometheus.yml.jinja", context, project_root / "monitoring" / "prometheus.yml")

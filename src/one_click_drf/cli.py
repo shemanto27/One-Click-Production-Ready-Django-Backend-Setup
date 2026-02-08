@@ -125,6 +125,11 @@ def init(
     if str(path) != ".":
         console.print(f"  cd {project_root.name if path else project_name}")
     
+    console.print("\n[bold]Run with Docker:[/bold]")
+    console.print("  docker compose -f docker-compose.dev.yml up --build")
+    
+    console.print("\n[bold]Run Locally:[/bold]")
+    console.print("  cd backend")
     console.print("  source .venv/bin/activate")
     console.print("  python manage.py runserver")
     

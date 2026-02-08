@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+# Initialize Terraform
+terraform init
+
+# Plan and Apply
+terraform plan -out=tfplan
+terraform apply "tfplan"

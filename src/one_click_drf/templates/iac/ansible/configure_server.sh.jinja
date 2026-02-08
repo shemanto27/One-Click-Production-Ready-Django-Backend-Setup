@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# Run Ansible playbook to configure the server
+ansible-playbook -i hosts.ini playbook.yml
