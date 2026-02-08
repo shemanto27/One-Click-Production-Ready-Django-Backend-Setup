@@ -16,6 +16,11 @@ uv tool install dist/one_click_drf-0.1.0-py3-none-any.whl
  ```
 
 
+ ```bash
+ uv run twine upload dist/*
+ ```
+
+
 ```bash
  source .venv/bin/activate
  ```

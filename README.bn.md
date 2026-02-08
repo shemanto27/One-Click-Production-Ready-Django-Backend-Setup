@@ -1,5 +1,5 @@
 <a name="top"></a>
-![heading image](https://github.com/user-attachments/assets/26db4ea0-580e-452c-89ae-b6d381fc1018)
+![heading image](https://github.com/shemanto27/One-Click-Production-Ready-Django-Backend-Setup/banner.gif)
 
 # One Click DRF (OCD) 🚀
 
