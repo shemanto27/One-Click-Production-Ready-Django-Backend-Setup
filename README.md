@@ -110,29 +110,32 @@ ocd init myproject --all
 
 ## 📂 Project Structure
 
-We follow a clean, modular structure:
+We follow a clean, modular structure where the Django backend is isolated in its own directory, and infrastructure/deployment files are organized at the root:
 
 ```
 project-root/
-├── core/                 # Project configuration
-│   ├── settings/         # Split settings
-│   │   ├── base.py
-│   │   ├── dev.py
-│   │   ├── prod.py
-│   ├── urls.py
-│   ├── wsgi.py
-│   └── asgi.py
-├── apps/                 # Your Django apps live here
-├── requirements/         # Dependencies split
-│   ├── base.txt
-│   ├── dev.txt
-│   └── prod.txt
-├── manage.py
-└── .env                  # Environment variables
+├── backend/              # Django backend source code
+│   ├── core/             # Project configuration (settings.py, urls.py, etc.)
+│   ├── apps/             # Your Django apps live here
+│   ├── manage.py         # Django management CLI
+│   ├── .env              # Environment variables
+│   ├── .gitignore        # Backend-specific ignore rules
+│   ├── Dockerfile        # Backend container definition
+│   ├── erd.sh            # ERD generation utility
+│   └── requirements/     # Dependencies split (base, dev, prod)
+├── nginx/                # Nginx proxy configuration
+├── .github/              # CI/CD (GitHub Actions workflows)
+├── infra/                # Infrastructure as Code (Terraform & Ansible)
+├── monitoring/           # Observability (Prometheus/Grafana)
+├── docker-compose.yml    # Root orchestration for all services
+└── DEVELOPMENT_GUIDE.md  # Detailed guide to get started
 ```
 
-**Why `core/`?** 
-Keeping settings and configuration separate from your business logic (`apps/`) keeps the root directory clean and makes the project easier to navigate.
+### 🚀 Built for the Future (Extensibility)
+This structure is intentionally designed for scaling into a full-stack or microservices architecture:
+- **Full-Stack Ready**: Need a frontend? Simply add a `frontend/` folder (React, Next.js, Vue, etc.) at the root. 
+- **Microservices/AI Ready**: You can easily plug in other services like `ml-service/` or `ai-apps/` in their own folders next to the backend.
+- **Simplified Orchestration**: Any new service can be integrated into the root `docker-compose.yml` and CI/CD pipelines, ensuring your entire ecosystem remains easy to deploy in the cloud.
 
 ## 🤝 Contribution
 

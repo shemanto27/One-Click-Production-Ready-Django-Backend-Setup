@@ -207,8 +207,7 @@ def generate_django_core(project_root: Path, context: dict):
         "django/erd.sh.jinja": backend_root / "erd.sh",
         "django/__init__.py.jinja": backend_root / "apps" / "__init__.py",
         "django/nginx.backend.conf.jinja": project_root / "nginx" / "backend.conf",
-        "env/.python-version.jinja": backend_root / ".python-version",
-        "django/DEVELOPMENT.md.jinja": project_root / "DEVELOPMENT.md",
+        "django/DEVELOPMENT_GUIDE.md.jinja": project_root / "DEVELOPMENT_GUIDE.md",
     }
     
     context.setdefault("secret_key", secrets.token_urlsafe(50))
@@ -292,9 +291,6 @@ def generate_iac(project_root: Path, context: dict):
     (project_root / "infra" / "terraform" / "create_infra.sh").chmod(0o755)
     (project_root / "infra" / "terraform" / "destroy_infra.sh").chmod(0o755)
     (project_root / "infra" / "ansible" / "configure_server.sh").chmod(0o755)
-
-def generate_observability(project_root: Path, context: dict):
-    render_to_file("observability/prometheus.yml.jinja", context, project_root / "monitoring" / "prometheus.yml")
 
 def generate_observability(project_root: Path, context: dict):
     render_to_file("observability/prometheus.yml.jinja", context, project_root / "monitoring" / "prometheus.yml")

@@ -44,5 +44,11 @@ To enable automatic deployment on every git push:
    - `EC2_HOST`, `EC2_USER`, `EC2_SSH_PRIVATE_KEY`
 4. Push to main: `git push origin main`.
 
+## 📂 Step 5: Extending the Architecture
+This project is built for scalability. You can easily expand it into a full-stack or multi-service ecosystem:
+- **Adding a Frontend**: Create a `frontend/` folder at the root (e.g., `npx create-next-app frontend`).
+- **Adding AI/ML Services**: Create a `ml-service/` or `ai-apps/` folder at the root.
+- **Orchestration**: Once added, simply update the root `docker-compose.yml` to include your new service and extend the GitHub Actions pipeline for multi-service builds.
+
 ---
 **Happy Coding!**
