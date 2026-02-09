@@ -1,6 +1,6 @@
 [project]
 name = "one-click-drf"
-version = "0.1.3"
+version = "0.1.4"
 description = "One command to generate a production-ready Django REST backend"
 readme = "README.md"
 authors = [
