@@ -63,7 +63,7 @@ def setup_uv(project_root: Path):
             os.environ["PATH"] += os.pathsep + str(uv_bin.parent)
 
     console.print("Initializing uv project...")
-    run_command(["uv", "init", "--no-workspace", "."], cwd=project_root, description="uv init")
+    run_command(["uv", "init", "--no-workspace", "--vcs", "none", "."], cwd=project_root, description="uv init")
     
     main_py = project_root / "main.py" 
     if main_py.exists():

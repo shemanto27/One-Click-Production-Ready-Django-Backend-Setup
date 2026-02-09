@@ -22,5 +22,10 @@ dev = [
     "twine>=6.2.0",
 ]
 
+[tool.uv.workspace]
+members = [
+    "test_vcs_none",
+]
+
 [project.scripts]
 ocd = "one_click_drf.cli:app"
