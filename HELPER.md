@@ -35,6 +35,16 @@ uv tool install dist/one_click_drf-0.1.0-py3-none-any.whl
  ```
 
 ```bash
+1. edit files
+2. git add .
+3. git commit -m "message"
+4. git tag vX.Y.Z
+5. git push origin main
+6. git push origin vX.Y.Z
+```
+ 
+
+```bash
 git checkout dev
 # code
 git commit
