@@ -8,7 +8,8 @@ from one_click_drf.generator import (
     generate_docker,
     generate_cicd,
     generate_iac,
-    generate_observability
+    generate_observability,
+    setup_git
 )
 
 help_text="""
@@ -118,6 +119,9 @@ def init(
         with console.status("Generating Observability configs..."):
             generate_observability(project_root, context)
             console.print("[green]✓ Observability configs generated[/green]")
+
+    # Git setup (Must be last to capture all files)
+    setup_git(project_root, context.get("github_repository_url", ""))
     
     # Final Instruction
     console.print("\n[bold green]✨ Project initialized successfully![/bold green]")

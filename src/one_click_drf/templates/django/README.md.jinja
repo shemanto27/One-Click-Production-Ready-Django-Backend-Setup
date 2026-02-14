@@ -1,0 +1,102 @@
+# {{ project_name }}
+
+{% if github_username %}
+**Created by:** [{{ github_username }}]({{ github_repository_url if github_repository_url else "https://github.com/" + github_username }})
+{% endif %}
+
+---
+
+> 🚀 **Getting Started:** For detailed step-by-step setup, database migrations, and deployment commands, please follow the **[DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)**.
+
+---
+
+## 1. Project Title
+- **Project Name:** {{ project_name }}
+- **Description:** [Enter a one-line description of what this backend does]
+
+## 2. Overview
+- **Problem Statement:** [Briefly explain what problem this backend solves]
+- **Target Consumers:** [e.g., Frontend React App, Mobile Application, Third-party Integrations]
+- **Architecture Type:** REST API (Django REST Framework)
+
+## 3. Tech Stack
+- **Framework:** Django REST Framework
+- **Language:** Python 3.12+
+- **Dependency Manager:** [uv](https://docs.astral.sh/uv/)
+- **Database:** PostgreSQL
+- **Containerization:** Docker & Docker Compose
+- **Infrastructure:** Terraform & Ansible (optional)
+- **Monitoring:** Prometheus & Grafana (optional)
+
+## 4. Architecture
+- **Request Flow:** [Describe high-level request flow from Client -> Nginx -> Gunicorn -> Django]
+- **Dependencies:** PostgreSQL, Redis, AWS S3
+- **Diagrams:** [Reference architecture diagrams here if available]
+
+## 5. Features
+- [ ] JWT Authentication
+- [ ] Automated Documentation (Swagger/ReDoc)
+- [ ] Scalable App-based Architecture
+- [ ] [Add your custom features here]
+
+## 6. Project Structure
+```text
+project-root/
+├── backend/              # Django backend source code
+│   ├── core/             # Project configuration (settings, urls, etc.)
+│   ├── apps/             # Business logic (Django apps)
+│   └── manage.py         # Django CLI
+├── nginx/                # Proxy configuration
+├── .github/              # CI/CD Workflows
+├── infra/                # Infrastructure as Code
+└── DEVELOPMENT_GUIDE.md  # Technical setup instructions
+```
+
+## 7. Environment Variables
+Managed via `.env` file located in the `backend/` directory.
+- Refer to `backend/.env` for the list of required variables.
+- Required variables include: `SECRET_KEY`, `DATABASE_URL`, `DEBUG`.
+
+## 8. Local Development Setup
+Detailed instructions are provided in the **[DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)**.
+Basic requirements:
+- Python 3.12+
+- `uv` installed
+- Docker (optional but recommended)
+
+## 9. Database & Migrations
+- **Initialization:** `python manage.py makemigrations`
+- **Apply Migrations:** `python manage.py migrate`
+- **Admin User:** [Refer to the CLI output or DEVELOPMENT_GUIDE for default credentials]
+
+## 10. API Documentation
+Available endpoints (once running):
+- **Swagger:** `http://localhost:8000/api/swagger.json/`
+- **ReDoc:** `http://localhost:8000/api/docs/`
+
+## 11. Authentication
+- **Method:** JWT (JSON Web Token)
+- **Format:** `Authorization: Bearer <token>`
+- **Endpoints:** `/api/token/` (Obtain) and `/api/token/refresh/` (Refresh)
+
+## 12. Deployment
+- **Environments:** Staging, Production (AWS ready)
+- **CI/CD:** GitHub Actions configured for automated builds and deployment.
+
+## 13. Monitoring & Logging
+- **Health Check:** `/api/health-check/` (placeholder)
+- **Logging:** Configured via Django LOGGING settings.
+- **Monitoring:** Prometheus metrics available at `/metrics/` (if enabled).
+
+## 14. Security Considerations
+- Secrets are never committed to version control (.env excluded).
+- Passwords hashed via Argon2/PBKDF2.
+- CORS headers correctly configured.
+
+## 15. Maintenance & Handover Notes
+- **New Apps:** Use `ocd` or standard Django commands inside `backend/apps/`.
+- **Backups:** Database backups should be managed at the RDS/Server level.
+
+## 16. Support & Contact
+- **Developer:** {{ github_username if github_username else "[Developer Name]" }}
+- **Repository:** {{ github_repository_url if github_repository_url else "[Repository URL]" }}

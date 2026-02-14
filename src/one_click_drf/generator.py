@@ -163,9 +163,6 @@ def setup_git(project_root: Path, github_url: str):
          ssh_url = f"git@github.com:{repo_path}.git"
 
     run_command(["git", "init"], cwd=project_root, description="git init")
-    
-    if not (project_root / "README.md").exists():
-        (project_root / "README.md").write_text("# Project Created with One-Click Production-Ready Django Setup")
 
     run_command(["git", "add", "."], cwd=project_root, description="git add")
     run_command(["git", "commit", "-m", "initial project setup"], cwd=project_root, description="git commit")
@@ -208,6 +205,7 @@ def generate_django_core(project_root: Path, context: dict):
         "django/__init__.py.jinja": backend_root / "apps" / "__init__.py",
         "django/nginx.backend.conf.jinja": project_root / "nginx" / "backend.conf",
         "django/DEVELOPMENT_GUIDE.md.jinja": project_root / "DEVELOPMENT_GUIDE.md",
+        "django/README.md.jinja": project_root / "README.md",
     }
     
     context.setdefault("secret_key", secrets.token_urlsafe(50))
@@ -250,8 +248,6 @@ urlpatterns = [
         
     # Run DB setup (migrations + superuser) in backend folder
     setup_django_db(backend_root)
-
-    setup_git(project_root, context.get("github_repository_url", ""))
 
 
 def generate_docker(project_root: Path, context: dict):
