@@ -98,6 +98,14 @@ Or enable everything:
 ocd init myproject --all
 ```
 
+### Check Version
+
+```bash
+ocd version
+# or
+ocd --version
+```
+
 ## 🚩 CLI Flags
 
 | Flag | Description |

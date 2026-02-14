@@ -1,6 +1,7 @@
 import typer
 from pathlib import Path
 from rich.console import Console
+import importlib.metadata
 
 from one_click_drf.prompts import ask_project_info, ensure_global_config
 from one_click_drf.generator import (
@@ -28,6 +29,7 @@ Options:
     --ci-cd                     Include GitHub Actions
     --iac                       Include Terraform/Ansible
     --observability             Include Prometheus/Grafana
+    --version                   Show the version and exit
     --help                      Show this message and exit
 
 Examples:
@@ -39,6 +41,25 @@ Examples:
 
 app = typer.Typer(help=help_text, add_completion=False)
 console = Console()
+
+def get_version():
+    try:
+        return importlib.metadata.version("one-click-drf")
+    except importlib.metadata.PackageNotFoundError:
+        return "dev"
+
+def version_callback(value: bool):
+    if value:
+        typer.echo(f"one-click-drf v{get_version()}")
+        raise typer.Exit()
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        None, "--version", "-v", help="Show the version and exit", callback=version_callback, is_eager=True
+    ),
+):
+    pass
 
 @app.command()
 def init(
@@ -84,10 +105,19 @@ def init(
         info = ask_project_info(default_name=default_name)
         project_name = info["project_name"]
 
-    # Merge context
+    # Merge context and sanitize
+    # Project name and app names must be valid Python identifiers (or close enough for paths)
+    import re
+    def sanitize_identifier(name: str) -> str:
+        # Keep only alphanumeric and underscores
+        return re.sub(r"[^a-zA-Z0-9_]", "", name)
+
+    project_name_safe = re.sub(r"[^a-zA-Z0-9_]", "_", project_name)
+    apps_safe = [sanitize_identifier(app) for app in info["apps"] if sanitize_identifier(app)]
+
     context = {
-        "project_name": project_name.replace(" ", "_").replace("-", "_"), # Safe python name
-        "apps": info["apps"],
+        "project_name": project_name_safe,
+        "apps": apps_safe,
         "github_username": global_config.get("github_username", ""),
         "dockerhub_username": global_config.get("dockerhub_username", ""),
         "github_repository_url": info.get("github_url", ""),
@@ -143,7 +173,7 @@ def init(
 
 @app.command()
 def version():
-    typer.echo("one-click-drf v0.1.0")
+    typer.echo(f"one-click-drf v{get_version()}")
 
 if __name__ == "__main__":
     app()

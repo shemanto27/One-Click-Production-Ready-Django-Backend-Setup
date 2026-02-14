@@ -96,6 +96,14 @@ ocd init myproject --docker --ci-cd
 ocd init myproject --all
 ```
 
+### ভার্সন চেক করা
+
+```bash
+ocd version
+# অথবা
+ocd --version
+```
+
 ## 🚩 CLI Flags
 
 নিচের ফ্ল্যাগগুলো ব্যবহার করে আপনি প্রোজেক্ট কাস্টমাইজ করতে পারেন:
