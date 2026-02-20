@@ -3,8 +3,8 @@
 
   vars:
     project_path: /home/ubuntu/{{ project_name }}
-    website_domain: {{ website_domain|default('example.com') }}           
-    certbot_email: {{ certbot_email|default('your-email@example.com') }} 
+    website_domain: {{ website_domain|default('example.com') }}
+    certbot_email: {{ certbot_email|default('your-email@example.com') }}
     env_file_src: ../../backend/.env
     docker_compose_src: ../../docker-compose.prod.yml
     nginx_conf_src: ../../nginx/backend.conf

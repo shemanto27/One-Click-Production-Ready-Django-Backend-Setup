@@ -141,7 +141,7 @@ project-root/
 
 ### 🚀 Built for the Future (Extensibility)
 This structure is intentionally designed for scaling into a full-stack or microservices architecture:
-- **Full-Stack Ready**: Need a frontend? Simply add a `frontend/` folder (React, Next.js, Vue, etc.) at the root. 
+- **Full-Stack Ready**: Need a frontend? Simply add a `frontend/` folder (React, Next.js, Vue, etc.) at the root.
 - **Microservices/AI Ready**: You can easily plug in other services like `ml-service/` or `ai-apps/` in their own folders next to the backend.
 - **Simplified Orchestration**: Any new service can be integrated into the root `docker-compose.yml` and CI/CD pipelines, ensuring your entire ecosystem remains easy to deploy in the cloud.
 
