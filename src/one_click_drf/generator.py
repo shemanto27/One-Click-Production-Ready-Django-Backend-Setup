@@ -104,11 +104,18 @@ def setup_uv(project_root: Path):
     ]
     run_command(["uv", "add", "--no-workspace"] + core_deps, cwd=project_root, description="uv add dependencies")
 
-def setup_django_db(project_root: Path):
+def setup_django_db(project_root: Path, apps_list: list):
     """Run migrations and create superuser"""
     console.print("Running migrations...")
-    # 'uv run' executes in the context of the project
-    run_command(["uv", "run", "python", "manage.py", "makemigrations"], cwd=project_root, description="makemigrations")
+    
+    # 1. Makemigrations for all apps, especially 'users'
+    for app in apps_list:
+        run_command(["uv", "run", "python", "manage.py", "makemigrations", app], cwd=project_root, description=f"makemigrations {app}")
+        
+    # 2. General makemigrations to capture anything else
+    run_command(["uv", "run", "python", "manage.py", "makemigrations"], cwd=project_root, description="makemigrations (general)")
+    
+    # 3. Final migrate
     run_command(["uv", "run", "python", "manage.py", "migrate"], cwd=project_root, description="migrate")
 
     # Superuser logic matching init.sh
@@ -280,7 +287,7 @@ from .models import *
             (app_path / "admin.py").write_text(admin_content)
         
     # Run DB setup (migrations + superuser) in backend folder
-    setup_django_db(backend_root)
+    setup_django_db(backend_root, context["apps"])
 
 
 def generate_docker(project_root: Path, context: dict):
