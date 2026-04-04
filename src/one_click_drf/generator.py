@@ -62,8 +62,11 @@ def setup_uv(project_root: Path):
             import os
             os.environ["PATH"] += os.pathsep + str(uv_bin.parent)
 
-    console.print("Initializing uv project...")
-    run_command(["uv", "init", "--no-workspace", "--vcs", "none", "."], cwd=project_root, description="uv init")
+    if not (project_root / "pyproject.toml").exists():
+        console.print("Initializing uv project...")
+        run_command(["uv", "init", "--no-workspace", "--vcs", "none", "."], cwd=project_root, description="uv init")
+    else:
+        console.print("[dim]uv project already initialized. Skipping uv init.[/dim]")
     
     main_py = project_root / "main.py" 
     if main_py.exists():
