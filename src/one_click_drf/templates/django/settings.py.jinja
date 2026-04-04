@@ -113,7 +113,7 @@ EXTERNAL_APPS = [
 
     # Local Dynamic Apps
     {% for app in apps %}
-    'apps.{{ app }}',
+    'apps.{{ app }}.apps.{{ app.capitalize() }}Config',
     {% endfor %}
 ]
 

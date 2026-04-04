@@ -26,7 +26,7 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = "User Account"
         verbose_name_plural = "Users Accounts"
-        app_label = 'apps_users'
+        app_label = 'users'
         db_table = 'users_table'
 
     email = models.EmailField(unique=True)
