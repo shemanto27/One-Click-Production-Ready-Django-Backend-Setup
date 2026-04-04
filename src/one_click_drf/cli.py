@@ -123,6 +123,7 @@ def init(
         "github_username": global_config.get("github_username", ""),
         "dockerhub_username": global_config.get("dockerhub_username", ""),
         "github_repository_url": info.get("github_url", ""),
+        "website_domain": info.get("website_domain", f"{project_name_safe}.com"),
     }
 
     console.print(f"\n[bold green]🚀 Initializing {project_name} in {project_root}...[/bold green]")

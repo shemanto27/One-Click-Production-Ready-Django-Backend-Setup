@@ -35,9 +35,11 @@ def ask_project_info(default_name: str = "backend"):
             "project_name": default_name,
             "apps": ["users"],
             "github_url": "",
+            "website_domain": "example.com",
         }
 
     project_name = typer.prompt("Project Name", default=default_name)
+    website_domain = typer.prompt("Website Domain", default=f"{project_name}.com")
     
     console.print("[dim]The 'users' app is added by default with pre-built models and auth APIs.[/dim]")
     console.print("[dim]Enter any ADDITIONAL Django apps you want to create (e.g., 'orders payments').[/dim]")
@@ -58,4 +60,5 @@ def ask_project_info(default_name: str = "backend"):
         "project_name": project_name,
         "apps": apps_list,
         "github_url": github_url,
+        "website_domain": website_domain,
     }

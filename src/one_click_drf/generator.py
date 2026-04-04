@@ -95,6 +95,8 @@ def setup_uv(project_root: Path):
         "django-storages",
         "requests",
         "cryptography",
+        "Pillow",
+        "django-cors-headers",
         "pre-commit>=3.6.0"
     ]
     run_command(["uv", "add", "--no-workspace"] + core_deps, cwd=project_root, description="uv add dependencies")
@@ -204,11 +206,11 @@ def generate_django_core(project_root: Path, context: dict):
         "django/wsgi.py.jinja": backend_root / "core" / "wsgi.py",
         "django/asgi.py.jinja": backend_root / "core" / "asgi.py",
         "django/manage.py.jinja": backend_root / "manage.py",
-        "env/.env.jinja": backend_root / ".env",
-        "env/.gitignore.jinja": backend_root / ".gitignore",
+        "env/env.jinja": backend_root / ".env",
+        "env/gitignore.jinja": backend_root / ".gitignore",
         "django/erd.sh.jinja": backend_root / "erd.sh",
         "django/nginx.backend.conf.jinja": project_root / "nginx" / "backend.conf",
-        "env/.env.example.jinja": backend_root / ".env.example",
+        "env/env_example.jinja": backend_root / ".env.example",
         "django/DEVELOPMENT_GUIDE.md.jinja": project_root / "DEVELOPMENT_GUIDE.md",
         "django/README.md.jinja": project_root / "README.md",
     }
