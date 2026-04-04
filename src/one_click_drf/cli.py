@@ -2,6 +2,8 @@ import typer
 from pathlib import Path
 from rich.console import Console
 import importlib.metadata
+import os
+import subprocess
 
 from one_click_drf.prompts import ask_project_info, ensure_global_config
 from one_click_drf.generator import (
@@ -21,7 +23,8 @@ GitHub: https://github.com/shemanto27
 LinkedIn: https://www.linkedin.com/in/shemanto/
 
 Usage:
-    one-click-drf init [OPTIONS] [PATH]
+    ocd init [OPTIONS] [PATH]
+    ocd update
 
 Options:
     --all                       Enable everything
@@ -33,10 +36,9 @@ Options:
     --help                      Show this message and exit
 
 Examples:
-    one-click-drf init myproject
-    one-click-drf init myproject --docker --ci-cd --iac --observability
-    one-click-drf init myproject --all
-    one-click-drf init myproject --docker --ci-cd --iac --observability --all
+    ocd init myproject
+    ocd init myproject --all
+    ocd update
 """
 
 app = typer.Typer(help=help_text, add_completion=False)
@@ -170,6 +172,29 @@ def init(
     console.print("\n[bold blue]Superuser Created:[/bold blue]")
     console.print("  Email:    admin@gmail.com")
     console.print("  Password: admin123")
+
+@app.command()
+def update():
+    """
+    Update the one-click-drf package to the latest version.
+    """
+    console.print("[bold blue]Checking for updates...[/bold blue]")
+    try:
+        # Check if installed via uv
+        result = subprocess.run(["uv", "tool", "upgrade", "one-click-drf"], capture_output=True, text=True)
+        if result.returncode == 0:
+            console.print("[green]Successfully updated to the latest version via uv![/green]")
+            console.print(result.stdout)
+        else:
+            # Try pip
+            console.print("[yellow]uv upgrade failed or uv not found. Trying pip...[/yellow]")
+            result = subprocess.run(["pip", "install", "--upgrade", "one-click-drf"], capture_output=True, text=True)
+            if result.returncode == 0:
+                console.print("[green]Successfully updated via pip![/green]")
+            else:
+                console.print("[red]Update failed. Please run 'uv tool upgrade one-click-drf' or 'pip install --upgrade one-click-drf' manually.[/red]")
+    except Exception as e:
+        console.print(f"[red]Error during update: {e}[/red]")
 
 @app.command()
 def version():

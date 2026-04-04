@@ -107,9 +107,15 @@ ocd init myproject --all
 ### Check Version
 
 ```bash
-ocd version
-# or
 ocd --version
+# or
+ocd version
+```
+
+### Keep Your Package Updated
+
+```bash
+ocd update
 ```
 
 ## 🚩 CLI Flags
