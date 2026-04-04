@@ -10,11 +10,11 @@ from rich.console import Console
 console = Console()
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
-env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
 def render_to_file(template_name: str, context: dict, dest_path: Path):
     try:
-        template = env.get_template(template_name)
+        template = jinja_env.get_template(template_name)
         content = template.render(**context)
         dest_path.parent.mkdir(parents=True, exist_ok=True)
         dest_path.write_text(content)
@@ -94,6 +94,7 @@ def setup_uv(project_root: Path):
         "boto3",
         "django-storages",
         "requests",
+        "cryptography",
         "pre-commit>=3.6.0"
     ]
     run_command(["uv", "add", "--no-workspace"] + core_deps, cwd=project_root, description="uv add dependencies")
@@ -206,7 +207,6 @@ def generate_django_core(project_root: Path, context: dict):
         "env/.env.jinja": backend_root / ".env",
         "env/.gitignore.jinja": backend_root / ".gitignore",
         "django/erd.sh.jinja": backend_root / "erd.sh",
-        "django/__init__.py.jinja": backend_root / "apps" / "__init__.py",
         "django/nginx.backend.conf.jinja": project_root / "nginx" / "backend.conf",
         "env/.env.example.jinja": backend_root / ".env.example",
         "django/DEVELOPMENT_GUIDE.md.jinja": project_root / "DEVELOPMENT_GUIDE.md",
