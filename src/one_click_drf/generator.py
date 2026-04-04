@@ -93,6 +93,7 @@ def setup_uv(project_root: Path):
         "sentry-sdk[django]",
         "boto3",
         "django-storages",
+        "requests",
         "pre-commit>=3.6.0"
     ]
     run_command(["uv", "add", "--no-workspace"] + core_deps, cwd=project_root, description="uv add dependencies")

@@ -1,0 +1,45 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install one-click-drf (from source)
+        run: |
+          uv pip install . --system
+
+      - name: Test Project Generation (Default)
+        run: |
+          # Use here-doc to provide non-interactive inputs for the 'ocd init' prompts
+          ocd init testproject --all <<EOF
+          testproject
+          
+          
+          EOF
+
+      - name: Validate Generated Project
+        run: |
+          cd testproject/backend
+          uv sync
+          
+          # This catches INSTALLED_APPS errors, AUTH_USER_MODEL errors, and Missing deps
+          uv run python manage.py check
+          uv run python manage.py makemigrations --check

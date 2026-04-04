@@ -21,6 +21,19 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Install current package (Validation)
+        run: uv pip install . --system
+
+      - name: Test Project Generation & Validate
+        run: |
+          # Use ocd to generate a project
+          ocd init myproject --all
+          cd myproject/backend
+          uv sync
+          # Run check and migrations to catch everything we missed (labels, missing deps, etc)
+          uv run python manage.py check
+          uv run python manage.py makemigrations --check
+
       - name: Build and Publish
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

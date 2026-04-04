@@ -1,4 +1,5 @@
 import typer
+import os
 from rich.console import Console
 from one_click_drf.config import CONFIG_FILE, save_config, get_git_user, load_config
 
@@ -9,6 +10,9 @@ def ensure_global_config() -> dict:
     Ensures global configuration exists.
     If not, prompts the user (only once).
     """
+    if os.getenv("GITHUB_ACTIONS"):
+        return {"github_username": "ci-test", "dockerhub_username": "ci-test"}
+
     if CONFIG_FILE.exists():
         cfg = load_config().get("user", {})
         return cfg
@@ -26,6 +30,13 @@ def ensure_global_config() -> dict:
     return {"github_username": github_user, "dockerhub_username": docker_user}
 
 def ask_project_info(default_name: str = "backend"):
+    if os.getenv("GITHUB_ACTIONS"):
+        return {
+            "project_name": default_name,
+            "apps": ["users"],
+            "github_url": "",
+        }
+
     project_name = typer.prompt("Project Name", default=default_name)
     
     console.print("[dim]The 'users' app is added by default with pre-built models and auth APIs.[/dim]")
