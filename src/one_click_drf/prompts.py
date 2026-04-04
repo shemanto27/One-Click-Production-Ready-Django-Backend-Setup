@@ -28,15 +28,18 @@ def ensure_global_config() -> dict:
 def ask_project_info(default_name: str = "backend"):
     project_name = typer.prompt("Project Name", default=default_name)
     
-    console.print("[dim]Enter the names of Django apps you want to create (e.g., 'users orders payments').[/dim]")
-    console.print("[dim]Press Enter to use the default ('users') or type 'none' for no apps.[/dim]")
+    console.print("[dim]The 'users' app is added by default with pre-built models and auth APIs.[/dim]")
+    console.print("[dim]Enter any ADDITIONAL Django apps you want to create (e.g., 'orders payments').[/dim]")
+    console.print("[dim]Press Enter to skip additional apps.[/dim]")
     
-    apps_input = typer.prompt("App names (space separated)", default="users")
+    apps_input = typer.prompt("Additional app names (space separated)", default="")
     
-    if apps_input.lower().strip() == 'none':
-        apps_list = []
-    else:
-        apps_list = apps_input.split()
+    # Always include users by default
+    apps_list = ["users"]
+    if apps_input.strip():
+        # Avoid duplicate 'users' if the user types it again
+        additional_apps = [app for app in apps_input.split() if app != 'users']
+        apps_list.extend(additional_apps)
         
     github_url = typer.prompt("GitHub Repository URL (optional)", default="", show_default=False)
     

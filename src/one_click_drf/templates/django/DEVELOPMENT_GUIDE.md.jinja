@@ -28,8 +28,19 @@ Before deploying, you need to create the servers.
 ## ⚙️ Step 3: Server Configuration (Ansible)
 Once the server is up, configure it with Docker, Nginx, and SSL.
 1. Go to `infra/ansible/`.
-2. Update `hosts.ini` with your new EC2 IP address.
-3. Run the helper:
+2. Copy the example hosts file and update it with your EC2 IP:
+   ```bash
+   cp example.hosts.ini hosts.ini
+   # Then open hosts.ini and replace YOUR_EC2_PUBLIC_IP
+   ```
+3. Open `playbook.yml` and update the `vars` section at the top:
+   ```yaml
+   vars:
+     website_domain: your-actual-domain.com        # ← your API domain
+     certbot_email: you@example.com                # ← email for SSL cert
+     docker_compose_src: ../../docker-compose.prod.yml  # ← path to your prod compose file
+   ```
+4. Run the helper:
    ```bash
    chmod +x configure_server.sh
    ./configure_server.sh

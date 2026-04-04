@@ -1,4 +1,4 @@
 provider "aws" {
-  region  = "us-east-1"
-  profile = "terraform-user-1"
+  region  = var.region
+  profile = var.aws_profile
 }

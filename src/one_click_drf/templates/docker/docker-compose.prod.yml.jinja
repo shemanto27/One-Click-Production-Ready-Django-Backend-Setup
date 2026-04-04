@@ -1,8 +1,6 @@
-version: "3.9"
-
 services:
   backend:
-    image: {{ dockerhub_username }}/{{ project_name }}:backend-latest
+    image: {{ dockerhub_username|default('user') }}/{{ project_name|lower }}:backend-latest
     container_name: {{ project_name }}-backend
     ports:
       - "8000:8000"

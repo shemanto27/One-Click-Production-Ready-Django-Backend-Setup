@@ -1,14 +1,15 @@
 server {
     listen 80;
-    server_name {{ domain_name|default('example.com') }};
+    server_name {{ website_domain|default('example.com') }};
     server_tokens off; # Hide nginx version
+    client_max_body_size 100M;
 
     # Security Headers
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options "nosniff";
     add_header X-XSS-Protection "1; mode=block";
     add_header Referrer-Policy "no-referrer-when-downgrade";
-    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'";
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'";
 
     location / {
         proxy_pass http://localhost:8000;

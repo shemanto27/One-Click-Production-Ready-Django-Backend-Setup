@@ -1,0 +1,21 @@
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from .models import CustomUserModel
+
+class MySocialAccountAdapter(DefaultSocialAccountAdapter):
+    def pre_social_login(self, request, sociallogin):
+        """
+        Auto-verify email for social logins.
+        """
+        user = sociallogin.user
+        if not user.id:
+            user.is_email_verified = True
+        return super().pre_social_login(request, sociallogin)
+
+    def save_user(self, request, sociallogin, form=None):
+        """
+        Create a new user from social login data.
+        """
+        user = super().save_user(request, sociallogin, form)
+        user.is_email_verified = True
+        user.save()
+        return user

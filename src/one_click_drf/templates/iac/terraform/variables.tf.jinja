@@ -4,7 +4,7 @@ variable "instance_type" {
 }
 
 variable "ami" {
-  description = "AMI"
+  description = "Ubuntu AMI ID for the selected region"
   default     = "ami-061fe7df6ad657197"
 }
 
@@ -23,4 +23,14 @@ variable "db_username" {
 variable "db_password" {
   description = "RDS Postgres password"
   sensitive   = true
+}
+
+variable "aws_profile" {
+  description = "AWS CLI profile name configured locally"
+  default     = "{{ project_name }}"
+}
+
+variable "region" {
+  description = "AWS region"
+  default     = "us-east-1"
 }

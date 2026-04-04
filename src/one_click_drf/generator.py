@@ -79,6 +79,9 @@ def setup_uv(project_root: Path):
         "django-cors-headers",
         "djangorestframework",
         "djangorestframework-simplejwt",
+        "dj-rest-auth",
+        "django-allauth",
+        "django-unfold",
         "drf-yasg",
         "isort>=5.13.2",
         "black>=24.4.2",
@@ -204,6 +207,7 @@ def generate_django_core(project_root: Path, context: dict):
         "django/erd.sh.jinja": backend_root / "erd.sh",
         "django/__init__.py.jinja": backend_root / "apps" / "__init__.py",
         "django/nginx.backend.conf.jinja": project_root / "nginx" / "backend.conf",
+        "env/.env.example.jinja": backend_root / ".env.example",
         "django/DEVELOPMENT_GUIDE.md.jinja": project_root / "DEVELOPMENT_GUIDE.md",
         "django/README.md.jinja": project_root / "README.md",
     }
@@ -223,28 +227,51 @@ def generate_django_core(project_root: Path, context: dict):
         app_path = apps_dir / app
         app_path.mkdir(exist_ok=True)
         (app_path / "__init__.py").touch()
-        
-        apps_py_content = f"""from django.apps import AppConfig
+
+        if app == 'users':
+            # Specialized app generation from templates folder
+            # Map files to be rendered from django/users/ templates folder
+            user_templates = {
+                "django/users/models.py.jinja": app_path / "models.py",
+                "django/users/serializers.py.jinja": app_path / "serializers.py",
+                "django/users/views.py.jinja": app_path / "views.py",
+                "django/users/urls.py.jinja": app_path / "urls.py",
+                "django/users/adapters.py.jinja": app_path / "adapters.py",
+                "django/users/admin.py.jinja": app_path / "admin.py",
+                "django/users/apps.py.jinja": app_path / "apps.py",
+            }
+            for utmpl, udest in user_templates.items():
+                render_to_file(utmpl, context, udest)
+        else:
+            # Generic app generation
+            apps_py_content = f"""from django.apps import AppConfig
 
 class {app.capitalize()}Config(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.{app}'
     label = 'apps_{app}'
 """
-        (app_path / "apps.py").write_text(apps_py_content)
-        (app_path / "models.py").write_text("from django.db import models\n\n# Create your models here.")
-        (app_path / "views.py").write_text("from django.shortcuts import render\n\n# Create your views here.")
-        (app_path / "tests.py").write_text("from django.test import TestCase\n\n# Create your tests here.")
-        
-        urls_py_content = """from django.urls import path
+            (app_path / "apps.py").write_text(apps_py_content)
+            (app_path / "models.py").write_text("from django.db import models\n\n# Create your models here.")
+            (app_path / "views.py").write_text("from django.shortcuts import render\n\n# Create your views here.")
+            (app_path / "tests.py").write_text("from django.test import TestCase\n\n# Create your tests here.")
+            
+            urls_py_content = """from django.urls import path
 
 urlpatterns = [
     # Add your routes here
 ]
 """
-        (app_path / "urls.py").write_text(urls_py_content)
-        (app_path / "serializers.py").write_text("from rest_framework import serializers\n\n# Create your serializers here.")
-        (app_path / "admin.py").write_text("from django.contrib import admin\n\n# Register your models here.")
+            (app_path / "urls.py").write_text(urls_py_content)
+            (app_path / "serializers.py").write_text("from rest_framework import serializers\n\n# Create your serializers here.")
+            
+            admin_content = f"""from django.contrib import admin
+from .models import *
+
+# Register your models here.
+# admin.site.register(MyModel)
+"""
+            (app_path / "admin.py").write_text(admin_content)
         
     # Run DB setup (migrations + superuser) in backend folder
     setup_django_db(backend_root)
@@ -280,6 +307,7 @@ def generate_iac(project_root: Path, context: dict):
     render_to_file("iac/terraform/.gitignore.jinja", context, project_root / "infra" / "terraform" / ".gitignore")
 
     render_to_file("iac/ansible/hosts.ini.jinja", context, project_root / "infra" / "ansible" / "hosts.ini")
+    render_to_file("iac/ansible/example.hosts.ini.jinja", context, project_root / "infra" / "ansible" / "example.hosts.ini")
     render_to_file("iac/ansible/playbook.yml.jinja", context, project_root / "infra" / "ansible" / "playbook.yml")
     render_to_file("iac/ansible/configure_server.sh.jinja", context, project_root / "infra" / "ansible" / "configure_server.sh")
     render_to_file("iac/ansible/.gitignore.jinja", context, project_root / "infra" / "ansible" / ".gitignore")

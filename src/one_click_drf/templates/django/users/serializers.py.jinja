@@ -1,0 +1,23 @@
+from rest_framework import serializers
+from .models import CustomUserModel
+
+class CustomUserModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUserModel
+        fields = ['id', 'email', 'username', 'full_name', 'profile_picture', 'is_email_verified', 'date_joined']
+        read_only_fields = ['is_email_verified', 'date_joined']
+
+class SignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = CustomUserModel
+        fields = ['email', 'password', 'full_name']
+
+    def create(self, validated_data):
+        user = CustomUserModel.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password'],
+            full_name=validated_data.get('full_name', '')
+        )
+        return user

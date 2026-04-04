@@ -1,0 +1,65 @@
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.apple.views import AppleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+
+from .models import CustomUserModel
+from .serializers import CustomUserModelSerializer, SignupSerializer
+
+User = get_user_model()
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    """
+    Profile management viewset.
+    """
+    queryset = CustomUserModel.objects.all()
+    serializer_class = CustomUserModelSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return CustomUserModel.objects.filter(id=self.request.user.id)
+
+class Stage1SignupView(APIView):
+    """
+    Enhanced signup view matching production pattern.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = SignupSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({"detail": "User created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GoogleLogin(SocialLoginView):
+    """
+    Google Login API endpoint.
+    Send 'access_token' or 'id_token' received from Google.
+    """
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "http://localhost:8000/auth/google/callback/" 
+    client_class = OAuth2Client
+
+class AppleLogin(SocialLoginView):
+    """
+    Apple Login API endpoint.
+    """
+    adapter_class = AppleOAuth2Adapter
+    callback_url = "https://your-domain.com/auth/apple/callback/"
+    client_class = OAuth2Client
+
+class DeleteAccountView(APIView):
+    """
+    GDPR-compliant account deletion.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response({"detail": "Account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
