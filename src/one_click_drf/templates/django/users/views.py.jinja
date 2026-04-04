@@ -23,17 +23,28 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return CustomUserModel.objects.filter(id=self.request.user.id)
 
-class Stage1SignupView(APIView):
+class SignupView(APIView):
     """
-    Enhanced signup view matching production pattern.
+    Standard single-stage signup view that returns JWT tokens upon success.
     """
+    serializer_class = SignupSerializer
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = SignupSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            return Response({"detail": "User created successfully"}, status=status.HTTP_201_CREATED)
+            
+            # Generate tokens for "normal JWT flow" login-on-signup
+            from rest_framework_simplejwt.tokens import RefreshToken
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                "detail": "User created successfully",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "user": CustomUserModelSerializer(user).data
+            }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GoogleLogin(SocialLoginView):

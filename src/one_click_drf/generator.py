@@ -132,16 +132,14 @@ def setup_django_db(project_root: Path, apps_list: list):
                     key, val = line.strip().split("=", 1)
                     env_vars[key] = val
     
-    su_user = env_vars.get("DJANGO_SUPERUSER_USERNAME")
     su_email = env_vars.get("DJANGO_SUPERUSER_EMAIL")
     su_pass = env_vars.get("DJANGO_SUPERUSER_PASSWORD")
 
-    if su_user and su_pass:
-        console.print(f"Creating superuser '{su_user}'...")
+    if su_email and su_pass:
+        console.print(f"Creating superuser '{su_email}'...")
         # create env dictionary for the subprocess
         proc_env = os.environ.copy()
         proc_env.update({
-            "DJANGO_SUPERUSER_USERNAME": su_user,
             "DJANGO_SUPERUSER_EMAIL": su_email,
             "DJANGO_SUPERUSER_PASSWORD": su_pass,
         })
@@ -320,7 +318,7 @@ def generate_iac(project_root: Path, context: dict):
     render_to_file("iac/terraform/.gitignore.jinja", context, project_root / "infra" / "terraform" / ".gitignore")
 
     render_to_file("iac/ansible/hosts.ini.jinja", context, project_root / "infra" / "ansible" / "hosts.ini")
-    render_to_file("iac/ansible/example.hosts.ini.jinja", context, project_root / "infra" / "ansible" / "example.hosts.ini")
+
     render_to_file("iac/ansible/playbook.yml.jinja", context, project_root / "infra" / "ansible" / "playbook.yml")
     render_to_file("iac/ansible/configure_server.sh.jinja", context, project_root / "infra" / "ansible" / "configure_server.sh")
     render_to_file("iac/ansible/.gitignore.jinja", context, project_root / "infra" / "ansible" / ".gitignore")
