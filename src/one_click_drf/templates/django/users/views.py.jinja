@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
@@ -23,15 +23,15 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return CustomUserModel.objects.filter(id=self.request.user.id)
 
-class SignupView(APIView):
+class SignupView(generics.GenericAPIView):
     """
     Standard single-stage signup view that returns JWT tokens upon success.
     """
     serializer_class = SignupSerializer
     permission_classes = [permissions.AllowAny]
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             
